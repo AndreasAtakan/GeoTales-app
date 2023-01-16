@@ -13,10 +13,7 @@ import { ColorSchemeName /*,Pressable*/ } from 'react-native';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import MenuIcon from '../components/MenuIcon';
-import ModalScreen from '../screens/ModalScreen';
-import NotFoundScreen from '../screens/NotFoundScreen';
-import TabOneScreen from '../screens/TabOneScreen';
-import TabTwoScreen from '../screens/TabTwoScreen';
+import { ModalScreen, NotFoundScreen, MapsScreen, TabTwoScreen } from '../screens/';
 import { RootStackParamList, RootDrawerParamList } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
 
@@ -61,10 +58,10 @@ function DrawerNavigator() {
     <Drawer.Navigator
       initialRouteName="Maps"
       screenOptions={{headerShown: true, headerLeft: () => <MenuIcon />}}
-      drawerContent={(props) => <div></div>}>
+      drawerContent={(props) => null}>
       <Drawer.Screen
         name="Maps"
-        component={TabOneScreen}
+        component={MapsScreen}
         options={{
           title: 'My maps'
         }}
@@ -78,21 +75,21 @@ function DrawerNavigator() {
       />
       <Drawer.Screen
         name="Settings"
-        component={TabTwoScreen}
+        component={() => null}
         options={{
           title: 'Settings'
         }}
       />
       <Drawer.Screen
         name="About"
-        component={TabTwoScreen}
+        component={() => null}
         options={{
           title: 'About GeoTales'
         }}
       />
       <Drawer.Screen
         name="Legal"
-        component={TabTwoScreen}
+        component={() => null}
         options={{
           title: 'Legal info'
         }}
