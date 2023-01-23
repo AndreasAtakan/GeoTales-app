@@ -5,6 +5,7 @@ node_modules
 .cache
 package-lock.json
 yarn.lock
+yarn-error.*
 .expo/
 npm-debug.*
 *.jks
