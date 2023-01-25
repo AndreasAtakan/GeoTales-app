@@ -11,14 +11,15 @@ export const NativeNavigation: FC = () => {
 		<Stack.Navigator>
 			<Stack.Screen
 				options={{
-					title: "Home"
+					//title: "Home"
+					headerShown: false
 				}}
 				name="home"
 				component={HomeScreen}
 			/>
 			<Stack.Screen
 				options={{
-					title: "User Details"
+					title: ""
 				}}
 				name="user-detail"
 				component={UserDetailScreen}

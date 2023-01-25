@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Github, Twitter } from "@tamagui/lucide-icons";
+import { Twitter, Facebook } from "@tamagui/lucide-icons";
 import { FC } from "react";
 import {
 	Anchor,
@@ -20,47 +20,35 @@ export const HomeScreen: FC<
 > = ({ navigation }) => {
 	return (
 		<MyStack>
-			<YStack
-				space="$4"
-				maxWidth={600}
-			>
-				<H1 textAlign="center">Welcome to Tamagui.</H1>
-				<Paragraph textAlign="center">
-					Here's a basic starter to show navigating from one screen to another.
-				</Paragraph>
-			</YStack>
+			<YStack space="$4" >
+				<H1 textAlign="center">GeoTales demo</H1>
 
-			<YStack space="$5">
+				<Paragraph textAlign="center">
+					Select image and get gps data
+				</Paragraph>
+
 				<LinkToUser navigation={navigation} />
 				<SelectImages navigation={navigation} />
+
 				<YGroup
 					width="100%"
 					separator={<Separator />}
 				>
 					<ListItem icon={Twitter}>
 						<Anchor
-							href="https://twitter.com/natebirdman"
+							href="https://twitter.com/Geotales_io"
 							target="_blank"
 						>
-							Nate
+							@Geotales_io
 						</Anchor>
 					</ListItem>
-					<ListItem icon={Github}>
+					<ListItem icon={Facebook}>
 						<Anchor
-							href="https://github.com/tamagui/tamagui"
+							href="https://www.facebook.com/Geotales-107125105285825"
 							target="_blank"
 							rel="noreferrer"
 						>
-							Tamagui
-						</Anchor>
-					</ListItem>
-					<ListItem icon={Github}>
-						<Anchor
-							href="https://github.com/ivopr/tamagui-expo"
-							target="_blank"
-							rel="noreferrer"
-						>
-							Template
+							GeoTales
 						</Anchor>
 					</ListItem>
 				</YGroup>

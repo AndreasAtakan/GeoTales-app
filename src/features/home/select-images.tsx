@@ -16,19 +16,26 @@ type SelectImagesProps = {
 
 export const SelectImages: FC<SelectImagesProps> = ({ navigation }) => {
 	const readImgs = async () => {
-		let res = await ImagePicker.launchImageLibraryAsync({
-			allowsMultipleSelection: true,
-			exif: true,
-			selectionLimit: 5
-		});
+		let res;
+		try {
+			res = await ImagePicker.launchImageLibraryAsync({
+				allowsMultipleSelection: true,
+				exif: true,
+				selectionLimit: 50
+			});
+		}
+		catch(err) { alert(err); }
 
-		if(!res.canceled) {
+		if(res && !res.canceled) {
 			let i = res.assets[0];
-			alert( JSON.stringify(i.exif, null, 2) );
+
+			//alert( JSON.stringify(i.exif, null, 2) );
 			// NOTE: GPS dataen ligger under 'GPSLatitude' og 'GPSLongitude'
 			// Her er docs for biblioteket jeg brukte: https://docs.expo.dev/versions/latest/sdk/imagepicker/#imagepickerasset
-		}else{
-			alert( "error" );
+
+			if(!i.exif) { return; }
+			let lat = i.exif.GPSLatitude, lng = i.exif.GPSLongitude;
+			alert( `lat: ${lat}, lng: ${lng}` );
 		}
 	};
 

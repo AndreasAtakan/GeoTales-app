@@ -22,7 +22,7 @@ export const LinkToUser: FC<LinkToUserProps> = ({ navigation }) => {
 			onPress={goToUser}
 			width="100%"
 		>
-			Go To User
+			Go To User (test)
 		</Button>
 	);
 };
