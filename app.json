@@ -4,13 +4,13 @@
     "slug": "GeoTales",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "geotales",
+    "icon": "./src/assets/icons/icon.png",
+    "jsEngine": "hermes",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./src/assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#ddffe2"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -22,13 +22,15 @@
       "supportsTablet": true
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+      "versionCode": 34,
     },
-    "web": {
-      "favicon": "./assets/images/favicon.png"
+    "androidNavigationBar": {
+      "backgroundColor": "#ddffe2",
+      "barStyle": "dark-content"
+    },
+    "androidStatusBar": {
+      "backgroundColor": "#ddffe2",
+      "barStyle": "dark-content"
     },
     "plugins": [
       [ "expo-document-picker", { "iCloudContainerEnvironment": "Production" } ],
