@@ -1,0 +1,43 @@
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { FC } from "react";
+import { ChevronRight, Map as MapIcon } from "@tamagui/lucide-icons";
+import {
+	ListItem,
+	Separator,
+	YGroup
+} from "tamagui";
+
+type ListProps = {
+	navigation: NativeStackNavigationProp<
+		StackNavigatorParams,
+		"maps",
+		undefined
+	>;
+	list: any;
+};
+
+export const List: FC<ListProps> = ({ navigation, list }) => {
+	const goto = async () => {
+		//
+	};
+
+	return (
+		<YGroup
+			separator={<Separator />}
+			//margin="$3"
+		>
+			{list.map((v: any) => (
+				<ListItem
+					key={v}
+					hoverTheme
+					pressTheme
+					title="[Map title]"
+					subTitle="[Description]"
+					icon={MapIcon}
+					iconAfter={ChevronRight}
+					onPress={goto}
+				/>
+			))}
+		</YGroup>
+	);
+};

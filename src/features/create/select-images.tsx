@@ -1,5 +1,7 @@
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { FC } from "react";
+import { Alert } from 'react-native';
+import { Plus } from "@tamagui/lucide-icons";
 import { Button } from "tamagui";
 
 import * as ImagePicker from 'expo-image-picker';
@@ -9,7 +11,7 @@ import * as ImagePicker from 'expo-image-picker';
 type SelectImagesProps = {
 	navigation: NativeStackNavigationProp<
 		StackNavigatorParams,
-		"home",
+		"create",
 		undefined
 	>;
 };
@@ -24,26 +26,37 @@ export const SelectImages: FC<SelectImagesProps> = ({ navigation }) => {
 				selectionLimit: 50
 			});
 		}
-		catch(err) { alert(err); }
+		catch(err) {
+			Alert.alert('Error', `${err}`, [ { text: 'OK', onPress: () => console.log('OK') } ]);
+		}
 
 		if(res && !res.canceled) {
 			let i = res.assets[0];
 
-			//alert( JSON.stringify(i.exif, null, 2) );
+			/*
+				Alert.alert('EXIF data', JSON.stringify(i.exif, null, 2), [
+					{
+						text: 'Cancel',
+						onPress: () => console.log('Cancel'),
+						style: 'cancel'
+					},
+					{ text: 'OK', onPress: () => console.log('OK') }
+				]);
+			*/
 			// NOTE: GPS dataen ligger under 'GPSLatitude' og 'GPSLongitude'
 			// Her er docs for biblioteket jeg brukte: https://docs.expo.dev/versions/latest/sdk/imagepicker/#imagepickerasset
 
 			if(!i.exif) { return; }
 			let lat = i.exif.GPSLatitude, lng = i.exif.GPSLongitude;
-			alert( `lat: ${lat}, lng: ${lng}` );
+			Alert.alert('GPS', `lat: ${lat}, lng: ${lng}`, [ { text: 'OK', onPress: () => console.log('OK') } ]);
 		}
 	};
 
 	return (
 		<Button
-			themeInverse
+			borderColor="#333"
+			icon={Plus}
 			onPress={readImgs}
-			width="100%"
 		>
 			Choose images
 		</Button>

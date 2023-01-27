@@ -1,3 +1,4 @@
 ### Working notes
 
-- [How React Navigation with stacked pages works](https://reactnavigation.org/docs/navigating/)
+#### TODO
+- Add Mapbox map to create/screen.tsx
