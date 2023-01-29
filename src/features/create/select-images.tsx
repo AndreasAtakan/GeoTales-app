@@ -5,7 +5,7 @@ import { Plus } from "@tamagui/lucide-icons";
 import { Button } from "tamagui";
 
 import * as ImagePicker from 'expo-image-picker';
-import { pres_from_exif } from "../../autopres/autopres";
+import { Pres, pres_from_exif } from "../../autopres/autopres";
 //import * as DocumentPicker from 'expo-document-picker';
 //import Exif from '@notech/react-native-exif';
 
@@ -32,7 +32,7 @@ export const SelectImages: FC<SelectImagesProps> = ({ navigation }) => {
 		}
 
 		if (res && !res.canceled) {
-			let pres = pres_from_exif(res.assets);
+			let pres = new Pres(res.assets, 10);
 			console.log(pres);
 		}
 	};

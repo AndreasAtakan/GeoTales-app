@@ -9,10 +9,32 @@ const IMG_RADIUS = 0.001;
 class Slide {
 }
 
-class Pres {
+/** Presentation */
+export class Pres {
+    clusters: ImgCluster[];
+    slide: number;
+
+    /**
+     * Parameters:
+     *   - `imgs`: Images to construct presentation from
+     *   - `d`: Maximum radius of image cluster in kilometers
+     */
+    constructor(imgs: ImagePickerAsset[], d: number) {
+        imgs.sort((u, v) => exif_time(u) - exif_time(v));
+        this.clusters = clusterize(imgs, d);
+        this.slide = 0;
+    }
+
+    next() {
+        this.slide += 1
+    }
+
+    prev() {
+        this.slide -= 1
+    }
 }
 
-/// A bounding box is [North-Western corner, South-Eastern corner]
+/** A bounding box is [North-Western corner, South-Eastern corner] */
 type BBox = [number[], number[]];
 
 interface ImgCluster {
@@ -21,9 +43,11 @@ interface ImgCluster {
     imgs: ImagePickerAsset[],
 }
 
-/// Bounding box of image, essentially just a rectangle with sides equal
-// 2*IMG_RADIUS centered on the image GPS location.
-function img_bbox(img: ImagePickerAsset): [number[], number[]] {
+/**
+ * Bounding box of image, essentially just a rectangle with sides equal
+ * 2*IMG_RADIUS centered on the image GPS location.
+ */
+function img_bbox(img: ImagePickerAsset): BBox {
     let nw = exif_pos(img);
     nw[0] -= IMG_RADIUS;
     nw[1] -= IMG_RADIUS;
@@ -33,7 +57,9 @@ function img_bbox(img: ImagePickerAsset): [number[], number[]] {
     return [nw, se];
 }
 
-/// Create clusters from a set of `imgs`.
+/**
+ * Create clusters from a set of `imgs`.
+ */
 function clusterize(imgs: ImagePickerAsset[], d: number): ImgCluster[] {
     let clusters: ImgCluster[] = [];
 
@@ -93,16 +119,6 @@ function exif_time(img: ImagePickerAsset): number {
 
 function exif_pos(img: ImagePickerAsset, fb?: number[]): number[] {
     fb = fb ? fb : POS_ZERO;
-    if (!img.exif) {
-        return fb
-    };
+    if (!img.exif) return fb
     return [img.exif.GPSLongitude, img.exif.GPSLatitude];
-}
-
-export function pres_from_exif(imgs: ImagePickerAsset[]) {
-    imgs.sort((u, v) => exif_time(u) - exif_time(v));
-
-    let cl = clusterize(imgs, 10);
-
-    console.log(cl);
 }
