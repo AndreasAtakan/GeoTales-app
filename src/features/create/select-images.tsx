@@ -5,6 +5,7 @@ import { Plus } from "@tamagui/lucide-icons";
 import { Button } from "tamagui";
 
 import * as ImagePicker from 'expo-image-picker';
+import { pres_from_exif } from "../../autopres/autopres";
 //import * as DocumentPicker from 'expo-document-picker';
 //import Exif from '@notech/react-native-exif';
 
@@ -30,25 +31,9 @@ export const SelectImages: FC<SelectImagesProps> = ({ navigation }) => {
 			Alert.alert('Error', `${err}`, [ { text: 'OK', onPress: () => console.log('OK') } ]);
 		}
 
-		if(res && !res.canceled) {
-			let i = res.assets[0];
-
-			/*
-				Alert.alert('EXIF data', JSON.stringify(i.exif, null, 2), [
-					{
-						text: 'Cancel',
-						onPress: () => console.log('Cancel'),
-						style: 'cancel'
-					},
-					{ text: 'OK', onPress: () => console.log('OK') }
-				]);
-			*/
-			// NOTE: GPS dataen ligger under 'GPSLatitude' og 'GPSLongitude'
-			// Her er docs for biblioteket jeg brukte: https://docs.expo.dev/versions/latest/sdk/imagepicker/#imagepickerasset
-
-			if(!i.exif) { return; }
-			let lat = i.exif.GPSLatitude, lng = i.exif.GPSLongitude;
-			Alert.alert('GPS', `lat: ${lat}, lng: ${lng}`, [ { text: 'OK', onPress: () => console.log('OK') } ]);
+		if (res && !res.canceled) {
+			let pres = pres_from_exif(res.assets);
+			console.log(pres);
 		}
 	};
 

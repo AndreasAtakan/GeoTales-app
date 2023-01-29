@@ -21,6 +21,8 @@
 		"@tamagui/lucide-icons": "1.0.21",
 		"@tamagui/shorthands": "1.0.21",
 		"@tamagui/theme-base": "1.0.21",
+		"@turf/turf": "^6.5.0",
+		"@types/victor": "^1.1.0",
 		"expo": "47.0.13",
 		"expo-asset": "~8.7.0",
 		"expo-constants": "~14.0.2",
@@ -35,6 +37,7 @@
 		"expo-system-ui": "~2.0.1",
 		"expo-updates": "~0.15.6",
 		"expo-web-browser": "~12.0.0",
+		"moment": "^2.29.4",
 		"react": "18.1.0",
 		"react-dom": "18.1.0",
 		"react-native": "0.70.5",
@@ -44,7 +47,8 @@
 		"react-native-screens": "3.18.2",
 		"react-native-svg": "13.4.0",
 		"react-native-web": "0.18.10",
-		"tamagui": "1.0.21"
+		"tamagui": "1.0.21",
+		"victor": "^1.1.0"
 	},
 	"resolutions": {
 		"react-native-svg": "13.4.0"
