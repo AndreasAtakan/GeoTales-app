@@ -24,6 +24,7 @@ export const SigninGoogle: FC<SigninGoogleProps> = ({ navigation }) => {
 	return (
 		<Button
 			themeInverse
+			size="$5"
 			bc="#d0463b"
 			color="#e6e6e6"
 			onPress={signin}

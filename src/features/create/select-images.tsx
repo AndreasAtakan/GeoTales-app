@@ -5,7 +5,7 @@ import { Plus } from "@tamagui/lucide-icons";
 import { Button } from "tamagui";
 
 import * as ImagePicker from 'expo-image-picker';
-import { Pres, pres_from_exif } from "../../autopres/autopres";
+import { Pres } from "../../autopres";
 //import * as DocumentPicker from 'expo-document-picker';
 //import Exif from '@notech/react-native-exif';
 
@@ -21,6 +21,7 @@ export const SelectImages: FC<SelectImagesProps> = ({ navigation }) => {
 	const readImgs = async () => {
 		let res;
 		try {
+			// Docs: https://docs.expo.dev/versions/latest/sdk/imagepicker/#imagepickerasset
 			res = await ImagePicker.launchImageLibraryAsync({
 				allowsMultipleSelection: true,
 				exif: true,

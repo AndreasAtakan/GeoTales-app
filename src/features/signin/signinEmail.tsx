@@ -24,6 +24,7 @@ export const SigninEmail: FC<SigninEmailProps> = ({ navigation }) => {
 	return (
 		<Button
 			themeInverse
+			size="$5"
 			bc="#808080"
 			color="#e6e6e6"
 			onPress={signin}

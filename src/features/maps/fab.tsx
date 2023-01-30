@@ -18,14 +18,13 @@ export const Fab: FC<FabProps> = ({ navigation }) => {
 
 	return (
 		<Button
-			themeInverse
 			bc={fabColor}
 			color="#e6e6e6"
 			br={100}
 			width={65}
 			height={65}
 			onPress={goto}
-			icon={<Plus size={32} />}
+			icon={<Plus size={32} strokeWidth={3} />}
 			position="absolute"
 			bottom={20}
 			right={20}
