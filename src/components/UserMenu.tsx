@@ -1,5 +1,5 @@
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { FC, useContext, useState } from 'react'
+import { NavigationContext } from "@react-navigation/native";
+import { useContext, useState } from 'react';
 import {
 	Button,
 	Sheet,
@@ -12,17 +12,9 @@ import { AuthContext } from "../context";
 
 import { headerColor } from "../constants/colors";
 
-type UserMenuProps = {
-	navigation: NativeStackNavigationProp<
-		StackNavigatorParams,
-		any,
-		undefined
-	>;
-};
-
 // NOTE: I don't hava access to 'navigation' because UserMenu is used in Stack.Navigator and not on a screen-view
-//		 Potentially a big problem, todo fix
-export const UserMenu: any /*FC<UserMenuProps>*/ = (/*{ navigation }*/) => {
+// SOLVED: using this https://reactnavigation.org/docs/navigation-context/
+export const UserMenu = () => {
 	const [ open, setOpen ] = useState(false);
 
 	const { signOut } = useContext(AuthContext);
@@ -32,13 +24,13 @@ export const UserMenu: any /*FC<UserMenuProps>*/ = (/*{ navigation }*/) => {
 		setOpen(false);
 	};
 
+	const navigation = useContext(NavigationContext);
 	const gotoSettings = () => {
-		//navigation.navigate("settings");
+		if(navigation) { navigation.navigate("maps"); } // settings
 		setOpen(false);
 	};
-
 	const gotoProfile = () => {
-		//navigation.navigate("profile");
+		if(navigation) { navigation.navigate("maps"); } // profile
 		setOpen(false);
 	};
 
