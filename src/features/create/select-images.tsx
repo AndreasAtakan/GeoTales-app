@@ -6,8 +6,6 @@ import { Button } from "tamagui";
 
 import * as ImagePicker from "react-native-image-picker";
 import { Pres } from "../../autopres";
-//import * as DocumentPicker from 'expo-document-picker';
-//import Exif from '@notech/react-native-exif';
 
 type SelectImagesProps = {
 	navigation: NativeStackNavigationProp<
