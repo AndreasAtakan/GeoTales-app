@@ -1,40 +1,4 @@
 {
-  "expo": {
-    "name": "GeoTales",
-    "slug": "GeoTales",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./src/assets/icons/icon.png",
-    "jsEngine": "hermes",
-    "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./src/assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ddffe2"
-    },
-    "updates": {
-      "fallbackToCacheTimeout": 0
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "versionCode": 34,
-    },
-    "androidNavigationBar": {
-      "backgroundColor": "#ddffe2",
-      "barStyle": "dark-content"
-    },
-    "androidStatusBar": {
-      "backgroundColor": "#ddffe2",
-      "barStyle": "dark-content"
-    },
-    "plugins": [
-      [ "expo-document-picker", { "iCloudContainerEnvironment": "Production" } ],
-      [ "expo-image-picker", { "photosPermission": "The app accesses your photos to let you share them with your friends." } ]
-    ]
-  }
+  "name": "GeoTales",
+  "displayName": "GeoTales"
 }

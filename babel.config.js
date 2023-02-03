@@ -1,9 +1,9 @@
 // process.env.TAMAGUI_TARGET = "native";
 
-module.exports = function (api) {
+module.exports = function(api) {
 	api.cache(true);
 	return {
-		presets: [["babel-preset-expo", { jsxRuntime: "automatic" }]],
+		presets: [ 'module:metro-react-native-babel-preset' ],
 		plugins: [
 			[
 				"@tamagui/babel-plugin",

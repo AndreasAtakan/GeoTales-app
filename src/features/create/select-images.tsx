@@ -4,7 +4,7 @@ import { Alert } from 'react-native';
 import { Plus } from "@tamagui/lucide-icons";
 import { Button } from "tamagui";
 
-import * as ImagePicker from 'expo-image-picker';
+import * as ImagePicker from "react-native-image-picker";
 import { Pres } from "../../autopres";
 //import * as DocumentPicker from 'expo-document-picker';
 //import Exif from '@notech/react-native-exif';
@@ -21,18 +21,21 @@ export const SelectImages: FC<SelectImagesProps> = ({ navigation }) => {
 	const readImgs = async () => {
 		let res;
 		try {
-			// Docs: https://docs.expo.dev/versions/latest/sdk/imagepicker/#imagepickerasset
-			res = await ImagePicker.launchImageLibraryAsync({
-				allowsMultipleSelection: true,
-				exif: true,
-				selectionLimit: 50
+			// Docs: https://github.com/react-native-image-picker/react-native-image-picker
+			res = await ImagePicker.launchImageLibrary({
+				selectionLimit: 50,
+				//presentationStyle: "popover", // https://github.com/react-native-image-picker/react-native-image-picker#options
+				mediaType: 'mixed',
+				maxWidth: 8000,
+				maxHeight: 8000,
+				includeExtra: true
 			});
 		}
 		catch(err) {
 			Alert.alert('Error', `${err}`, [ { text: 'OK', onPress: () => console.log('OK') } ]);
 		}
 
-		if (res && !res.canceled) {
+		if(res && !res.didCancel && res.assets) {
 			let pres = new Pres(res.assets, 10);
 			console.log(pres);
 		}
@@ -40,6 +43,8 @@ export const SelectImages: FC<SelectImagesProps> = ({ navigation }) => {
 
 	return (
 		<Button
+			position="absolute"
+			zIndex={1}
 			borderColor="#333"
 			icon={Plus}
 			onPress={readImgs}

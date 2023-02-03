@@ -1,4 +1,4 @@
-import { ImagePickerAsset } from "expo-image-picker";
+import { Asset as ImagePickerAsset } from "react-native-image-picker";
 import Victor from "victor";
 import { distance } from "@turf/turf";
 import moment from "moment";
@@ -104,11 +104,12 @@ function clusterize(imgs: ImagePickerAsset[], d: number): ImgCluster[] {
 }
 
 function exif_time(img: ImagePickerAsset): number {
-	return moment(img.exif?.DateTime, "YYYY:MM:DD HH:mm:ss").toDate().getTime();
+	return moment(img.timestamp, "YYYY:MM:DD HH:mm:ss").toDate().getTime();
 }
 
-function exif_pos(img: ImagePickerAsset, fb?: number[]): number[] {
+function exif_pos(img: any, fb?: number[]): number[] {
 	fb = fb ? fb : POS_ZERO;
-	if (!img.exif) return fb
-	return [img.exif.GPSLongitude, img.exif.GPSLatitude];
+	//if (!img.exif) return fb
+	console.log( JSON.stringify(img) );
+	return [img.longitude, img.latitude];
 }
