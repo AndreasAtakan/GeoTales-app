@@ -5,7 +5,7 @@ import { Plus } from "@tamagui/lucide-icons";
 import { Button } from "tamagui";
 
 import * as ImagePicker from 'expo-image-picker';
-import { Pres, pres_from_exif } from "../../autopres/autopres";
+import { Pres } from "../../autopres/autopres";
 //import * as DocumentPicker from 'expo-document-picker';
 //import Exif from '@notech/react-native-exif';
 
