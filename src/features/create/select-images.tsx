@@ -5,7 +5,7 @@ import { Plus } from "@tamagui/lucide-icons";
 import { Button } from "tamagui";
 
 import * as ImagePicker from 'expo-image-picker';
-import { Pres } from "../../autopres/autopres";
+import { Pres } from "../../autopres";
 
 type SelectImagesProps = {
 	navigation: NativeStackNavigationProp<
