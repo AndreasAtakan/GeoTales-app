@@ -17,8 +17,8 @@ type ListProps = {
 };
 
 export const List: FC<ListProps> = ({ navigation, list }) => {
-	const goto = async () => {
-		//
+	const goto = async (id: any) => {
+		navigation.navigate("view", { id });
 	};
 
 	return (
@@ -35,7 +35,7 @@ export const List: FC<ListProps> = ({ navigation, list }) => {
 					subTitle="Description"
 					icon={MapIcon}
 					iconAfter={ChevronRight}
-					onPress={goto}
+					onPress={() => goto(v)}
 				/>
 			))}
 		</YGroup>

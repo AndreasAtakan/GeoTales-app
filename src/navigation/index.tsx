@@ -9,6 +9,7 @@ import { UserMenu } from "../components/UserMenu";
 import { SignInScreen } from "../features/signin/screen";
 import { MapsScreen } from "../features/maps/screen";
 import { CreateScreen } from "../features/create/screen";
+import { ViewScreen } from "../features/view/screen";
 
 const Stack = createNativeStackNavigator<StackNavigatorParams>();
 
@@ -48,6 +49,13 @@ export const NativeNavigation: FC = () => {
 						}}
 						name="create"
 						component={CreateScreen}
+					/>
+					<Stack.Screen
+						options={{
+							//headerShown: false
+						}}
+						name="view"
+						component={ViewScreen}
 					/>
 				</>
 				) :

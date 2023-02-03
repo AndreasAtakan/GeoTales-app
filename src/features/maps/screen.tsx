@@ -13,7 +13,7 @@ import { MainStack } from "../../components/MainStack";
 import { List } from "./list";
 import { Fab } from "./fab";
 
-let l: number[] = []; //for(let i = 0; i < 30; i++) { l.push(i); }
+let l: number[] = []; for(let i = 0; i < 5; i++) { l.push(i); }
 
 export const MapsScreen: FC< NativeStackScreenProps<StackNavigatorParams, "maps"> > = ({ navigation }) => {
 	return (
