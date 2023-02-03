@@ -4,7 +4,7 @@ import { FC, useContext } from "react";
 import { headerColor } from "../constants/colors";
 import { AuthContext } from "../context";
 
-import { UserDropdown } from "../components/UserDropdown";
+import { UserMenu } from "../components/UserMenu";
 
 import { SignInScreen } from "../features/signin/screen";
 import { MapsScreen } from "../features/maps/screen";
@@ -28,7 +28,7 @@ export const NativeNavigation: FC = () => {
 				headerBackTitleVisible: false,
 				headerShadowVisible: true,
 				headerTitleAlign: 'center',
-				headerRight: UserDropdown
+				headerRight: UserMenu
 			}}
 		>
 			{

@@ -24,15 +24,15 @@ export const List: FC<ListProps> = ({ navigation, list }) => {
 	return (
 		<YGroup
 			separator={<Separator />}
-			//margin="$3"
+			//space="$3"
 		>
 			{list.map((v: any) => (
 				<ListItem
 					key={v}
 					hoverTheme
 					pressTheme
-					title="[Map title]"
-					subTitle="[Description]"
+					title={`Map ${v+1}`}
+					subTitle="Description"
 					icon={MapIcon}
 					iconAfter={ChevronRight}
 					onPress={goto}

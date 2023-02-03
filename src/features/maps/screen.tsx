@@ -23,15 +23,16 @@ export const MapsScreen: FC< NativeStackScreenProps<StackNavigatorParams, "maps"
 				pinchGestureEnabled={false}
 			>
 				<YStack
-					justifyContent="center"
-					alignItems="center"
-					minHeight="100%"
+					f={1}
+					jc={l.length > 0 ? "flex-start" : "center"}
+					ai="center"
+					height={l.length > 0 ? "auto" : 250}
 				>
 					{l.length > 0 ? (
 						<List navigation={navigation} list={l} />
 					) : 
 					(
-						<Text color={"#999"}>No maps found</Text>
+						<Text color="#999">No maps found</Text>
 					)}
 				</YStack>
 			</ScrollView>

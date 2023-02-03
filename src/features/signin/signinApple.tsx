@@ -25,6 +25,7 @@ export const SigninApple: FC<SigninAppleProps> = ({ navigation, marginTop }) => 
 	return (
 		<Button
 			themeInverse
+			size="$5"
 			bc="#333333"
 			color="#e6e6e6"
 			onPress={signin}
