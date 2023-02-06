@@ -12,8 +12,8 @@ import MapboxGL from "@rnmapbox/maps";
 
 import { MainStack } from "../../components/MainStack";
 
-MapboxGL.setAccessToken('pk.eyJ1IjoiYW5kcmVhc2F0YWthbiIsImEiOiJja3dqbGlham0xMDAxMnhwazkydDRrbDRwIn0.zQJIqHf0Trp--7GHLc4ySg');
-//MapboxGL.setAccessToken(null);
+//MapboxGL.setAccessToken('pk.eyJ1IjoiYW5kcmVhc2F0YWthbiIsImEiOiJja3dqbGlham0xMDAxMnhwazkydDRrbDRwIn0.zQJIqHf0Trp--7GHLc4ySg');
+MapboxGL.setAccessToken(null);
 MapboxGL.setWellKnownTileServer( MapboxGL.TileServers.MapLibre || MapboxGL.TileServers.Mapbox );
 
 const styles = StyleSheet.create({
@@ -22,9 +22,7 @@ const styles = StyleSheet.create({
 		width: 300
 	},
 	map: {
-		flex: 1,
-		width: 100,
-		height: 100
+		flex: 1
 	}
 });
 
@@ -55,7 +53,10 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 				minHeight="100%"
 			>
 				<View style={styles.container}>
-					<MapboxGL.MapView style={styles.map} />
+					<MapboxGL.MapView
+						style={styles.map}
+						styleURL="https://demotiles.maplibre.org/style.json"
+					/>
 				</View>
 			</YStack>
 		</MainStack>
