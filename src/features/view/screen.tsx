@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { FC } from "react";
-import { Dimensions } from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
 import {
 	Text,
 	Image,
@@ -12,9 +12,21 @@ import MapboxGL from "@rnmapbox/maps";
 
 import { MainStack } from "../../components/MainStack";
 
-//MapboxGL.setAccessToken('pk.eyJ1IjoiYW5kcmVhc2F0YWthbiIsImEiOiJja3dqbGlham0xMDAxMnhwazkydDRrbDRwIn0.zQJIqHf0Trp--7GHLc4ySg');
+MapboxGL.setAccessToken('pk.eyJ1IjoiYW5kcmVhc2F0YWthbiIsImEiOiJja3dqbGlham0xMDAxMnhwazkydDRrbDRwIn0.zQJIqHf0Trp--7GHLc4ySg');
 //MapboxGL.setAccessToken(null);
 MapboxGL.setWellKnownTileServer( MapboxGL.TileServers.MapLibre || MapboxGL.TileServers.Mapbox );
+
+const styles = StyleSheet.create({
+	container: {
+		height: 300,
+		width: 300
+	},
+	map: {
+		flex: 1,
+		width: 100,
+		height: 100
+	}
+});
 
 export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"> > = ({ route, navigation }) => {
 	const { id } = route.params;	
@@ -42,13 +54,9 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 				alignItems="center"
 				minHeight="100%"
 			>
-				<MapboxGL.MapView
-					style={{
-						width: "300px",
-						height: "300px",
-						flex: 1
-					}}
-				/>
+				<View style={styles.container}>
+					<MapboxGL.MapView style={styles.map} />
+				</View>
 			</YStack>
 		</MainStack>
 	);
