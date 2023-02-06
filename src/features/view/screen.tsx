@@ -12,24 +12,22 @@ import MapboxGL from "@rnmapbox/maps";
 
 import { MainStack } from "../../components/MainStack";
 
-//MapboxGL.setAccessToken('pk.eyJ1IjoiYW5kcmVhc2F0YWthbiIsImEiOiJja3dqbGlham0xMDAxMnhwazkydDRrbDRwIn0.zQJIqHf0Trp--7GHLc4ySg');
+// Mapbox access token: pk.eyJ1IjoiYW5kcmVhc2F0YWthbiIsImEiOiJja3dqbGlham0xMDAxMnhwazkydDRrbDRwIn0.zQJIqHf0Trp--7GHLc4ySg
 MapboxGL.setAccessToken(null);
 MapboxGL.setWellKnownTileServer( MapboxGL.TileServers.MapLibre || MapboxGL.TileServers.Mapbox );
 
+const windowWidth = Dimensions.get('window').width,
+	  windowHeight = Dimensions.get('window').height;
 const styles = StyleSheet.create({
-	container: {
-		height: 300,
-		width: 300
-	},
 	map: {
-		flex: 1
+		flex: 1,
+		width: windowWidth,
+		height: windowHeight
 	}
 });
 
 export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"> > = ({ route, navigation }) => {
-	const { id } = route.params;	
-	const windowWidth = Dimensions.get('window').width,
-		  windowHeight = Dimensions.get('window').height;
+	const { id } = route.params;
 
 	/*const mapContainer: any = useRef(null);
 	const map: any = useRef(null);
@@ -52,12 +50,10 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 				alignItems="center"
 				minHeight="100%"
 			>
-				<View style={styles.container}>
-					<MapboxGL.MapView
-						style={styles.map}
-						styleURL="https://demotiles.maplibre.org/style.json"
-					/>
-				</View>
+				<MapboxGL.MapView
+					style={styles.map}
+					styleURL="https://demotiles.maplibre.org/style.json"
+				/>
 			</YStack>
 		</MainStack>
 	);
