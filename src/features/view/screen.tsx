@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { FC } from "react";
+import { FC, useRef, useEffect } from "react";
 import { View, StyleSheet, Dimensions } from 'react-native';
 import {
 	Text,
@@ -13,35 +13,20 @@ import MapboxGL from "@rnmapbox/maps";
 import { MainStack } from "../../components/MainStack";
 
 // Mapbox access token: pk.eyJ1IjoiYW5kcmVhc2F0YWthbiIsImEiOiJja3dqbGlham0xMDAxMnhwazkydDRrbDRwIn0.zQJIqHf0Trp--7GHLc4ySg
+MapboxGL.setWellKnownTileServer( MapboxGL.TileServers.MapLibre || "MapLibre" ); // MapboxGL.TileServers.Mapbox
 MapboxGL.setAccessToken(null);
-MapboxGL.setWellKnownTileServer( MapboxGL.TileServers.MapLibre || MapboxGL.TileServers.Mapbox );
 
-const windowWidth = Dimensions.get('window').width,
-	  windowHeight = Dimensions.get('window').height;
+const dim = Dimensions.get('window');
 const styles = StyleSheet.create({
-	map: {
-		flex: 1,
-		width: windowWidth,
-		height: windowHeight
-	}
+	map: { flex: 1, width: dim.width, height: dim.height }
 });
 
 export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"> > = ({ route, navigation }) => {
-	const { id } = route.params;
-
-	/*const mapContainer: any = useRef(null);
-	const map: any = useRef(null);
-	const lng = -70.9, lat = 42.35, zoom = 9;
+	const { id } = route.params, MAPREF: any = useRef(null);
 
 	useEffect(() => {
-		if (map.current) return; // initialize map only once
-		map.current = new mapboxgl.Map({
-			container: mapContainer.current,
-			style: 'mapbox://styles/mapbox/streets-v12',
-			center: [lng, lat],
-			zoom: zoom
-		});
-	});*/
+		console.log( MAPREF.current.getVisibleBounds() );
+	});
 
 	return (
 		<MainStack>
@@ -51,52 +36,92 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 				minHeight="100%"
 			>
 				<MapboxGL.MapView
+					ref={MAPREF}
+					projection="globe" // NOTE: globe view is only available with mapbox 
+					logoEnabled={false}
+					attributionPosition={{ bottom: 5, right: 5 }}
+					compassEnabled={true}
+					surfaceView={true}
 					style={styles.map}
-					styleURL="https://demotiles.maplibre.org/style.json"
-				/>
+					styleURL="https://api.maptiler.com/maps/basic-v2/style.json?key=wq39CbUriaDcSFHF3N9a"
+				>
+					<MapboxGL.Camera centerCoordinate={[8, 50]} zoomLevel={3} />
+				</MapboxGL.MapView>
 			</YStack>
 		</MainStack>
 	);
 };
 
 /*
-<MapboxGL.MapView
-	style={{
-		width: `${windowWidth}px`,
-		height: `${windowHeight}px`,
-		flex: 1
-	}}
-	styleJSON={JSON.stringify({
-		version: 8,
-		name: 'Land',
-		sources: {
-			map: {
-				type: 'raster',
-				tiles: [ 'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png' ],
-				tileSize: 256,
-				minzoom: 1,
-				maxzoom: 19
+
+JSON.stringify({
+	sources: {
+		map: {
+			type: 'raster',
+			tiles: [ 'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png' ],
+			attribution: '&copy; OpenStreetMap Contributors',
+			tileSize: 256,
+			minzoom: 1,
+			maxzoom: 19
+		}
+	},
+	layers: [
+		{
+			id: 'background',
+			type: 'background',
+			paint: {
+				'background-color': '#f2efea'
 			}
 		},
-		layers: [
-			{
-				id: 'background',
-				type: 'background',
-				paint: {
-					'background-color': '#f2efea'
-				}
-			},
-			{
-				id: 'map',
-				type: 'raster',
-				source: 'map',
-				paint: {
-					'raster-fade-duration': 100
-				}
+		{
+			id: 'map',
+			type: 'raster',
+			source: 'map',
+			paint: {
+				'raster-fade-duration': 100
 			}
-		]
-	})}
->
-	<MapboxGL.Camera centerCoordinate={[-74.00597, 40.71427]} zoomLevel={14} />
-</MapboxGL.MapView>
+		}
+	]
+})
+
+JSON.stringify({
+	sources: {
+		osm: {
+			type: 'raster',
+			tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+			tileSize: 256,
+			attribution: '&copy; OpenStreetMap Contributors',
+			maxzoom: 19
+		},
+		terrainSource: {
+			type: 'raster-dem',
+			url: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
+			tileSize: 256
+		},
+		hillshadeSource: {
+			type: 'raster-dem',
+			url: 'https://demotiles.maplibre.org/terrain-tiles/tiles.json',
+			tileSize: 256
+		}
+	},
+	layers: [
+		{
+			id: 'osm',
+			type: 'raster',
+			source: 'osm'
+		},
+		{
+			id: 'hills',
+			type: 'hillshade',
+			source: 'hillshadeSource',
+			layout: { visibility: 'visible' },
+			paint: { 'hillshade-shadow-color': '#473B24' }
+		}
+	],
+	terrain: {
+		source: 'terrainSource',
+		exaggeration: 1
+	}
+});
+
 */
