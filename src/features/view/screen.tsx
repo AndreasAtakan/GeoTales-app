@@ -22,11 +22,21 @@ const styles = StyleSheet.create({
 });
 
 export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"> > = ({ route, navigation }) => {
-	const { id } = route.params, MAPREF: any = useRef(null);
+	const { id } = route.params;
+	const MAP = useRef<MapboxGL.MapView>(null),
+		  CAMERA = useRef<MapboxGL.Camera>(null);
 
 	useEffect(() => {
-		console.log( MAPREF.current.getVisibleBounds() );
-	});
+		//if(!id) { return; }
+
+		MAP.current?.getVisibleBounds().then(b => console.log(b));
+
+		CAMERA.current?.setCamera({
+			centerCoordinate: [50, 8],
+			zoomLevel: 8,
+			animationDuration: 9500
+		});
+	}, []);
 
 	return (
 		<MainStack>
@@ -36,8 +46,8 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 				minHeight="100%"
 			>
 				<MapboxGL.MapView
-					ref={MAPREF}
-					projection="globe" // NOTE: globe view is only available with mapbox 
+					ref={MAP}
+					projection="globe" // NOTE: globe view is only available with mapbox, not configured
 					logoEnabled={false}
 					attributionPosition={{ bottom: 5, right: 5 }}
 					compassEnabled={true}
@@ -45,7 +55,12 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 					style={styles.map}
 					styleURL="https://api.maptiler.com/maps/basic-v2/style.json?key=wq39CbUriaDcSFHF3N9a"
 				>
-					<MapboxGL.Camera centerCoordinate={[8, 50]} zoomLevel={3} />
+					<MapboxGL.Camera
+						ref={CAMERA}
+						centerCoordinate={[8, 50]}
+						zoomLevel={3}
+						animationMode="flyTo"
+					/>
 				</MapboxGL.MapView>
 			</YStack>
 		</MainStack>

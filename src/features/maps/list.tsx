@@ -35,7 +35,7 @@ export const List: FC<ListProps> = ({ navigation, list }) => {
 					subTitle="Description"
 					icon={MapIcon}
 					iconAfter={ChevronRight}
-					onPress={() => goto(v.toString())}
+					onPress={() => goto(null)}
 				/>
 			))}
 		</YGroup>

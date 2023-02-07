@@ -113,7 +113,7 @@ async function exif_pos(img: any, fb?: number[]): Promise<number[]> {
 
 	let res;
 	try { res = await Exif.getLatLong(img.uri); }
-	catch(err) { console.log(err); return fb;  }
+	catch(err) { console.error(err); return fb;  }
 
 	console.log( JSON.stringify(res) );
 
