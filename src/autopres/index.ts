@@ -1,14 +1,42 @@
 import { Asset as ImagePickerAsset } from "react-native-image-picker";
-//import Exif from "react-native-exif";
 const Exif: any = require("react-native-exif");
-import Victor from "victor";
 import { distance } from "@turf/turf";
 import moment from "moment";
 
 const POS_ZERO = [0, 0];
 const IMG_RADIUS = 0.001;
 
-class Slide {}
+class Img {
+	pos: number[] | undefined;
+	uri: string;
+	timestamp: number;
+
+	constructor(img: ImagePickerAsset) {
+		this.uri = img.uri as string;
+		this.timestamp = moment(img.timestamp, "YYYY:MM:DD HH:mm:ss").toDate().getTime();
+	}
+
+	getpos(): number[] {
+		if (!this.pos) {
+			throw new Error("Attempted to get position of uninitialized Img");
+		}
+		return this.pos.slice(0);
+	}
+
+	/**
+	 * Load image data from disk, setting gps position to `pos_zero` if there is
+	 * no exif gps data.
+	 */
+	async load(pos_zero?: number[]) {
+		try {
+			let res = await Exif.getLatLong(this.uri);
+			this.pos = [res.longitude, res.latitude];
+		} catch (err) {
+			console.error(err);
+			this.pos = pos_zero ? pos_zero : POS_ZERO;
+		}
+	}
+}
 
 /** Presentation */
 export class Pres {
@@ -20,9 +48,12 @@ export class Pres {
 	 *   - `imgs`: Images to construct presentation from
 	 *   - `d`: Maximum radius of image cluster in kilometers
 	 */
-	async initialize(imgs: ImagePickerAsset[], d: number) {
-		imgs.sort((u, v) => exif_time(u) - exif_time(v));
-		this.clusters = await clusterize(imgs, d);
+	async initialize(img_picks: ImagePickerAsset[], d: number) {
+		let imgs = img_picks.map(i => new Img(i));
+		let awaits = imgs.map(i => i.load());
+		Promise.all(awaits); // await in parallel
+		imgs.sort((u, v) => u.timestamp - v.timestamp);
+		this.clusters = clusterize(imgs, d);
 	}
 
 	next() {
@@ -38,11 +69,11 @@ export class Pres {
  * Bounding box of image, essentially just a rectangle with sides equal
  * 2*IMG_RADIUS centered on the image GPS location.
  */
-async function img_bbox(img: ImagePickerAsset): Promise<BBox> {
-	let nw = await exif_pos(img);
+function img_bbox(img: Img): BBox {
+	let nw = img.getpos();
 	nw[0] -= IMG_RADIUS;
 	nw[1] -= IMG_RADIUS;
-	let se = await exif_pos(img);
+	let se = img.getpos();
 	se[0] += IMG_RADIUS;
 	se[1] += IMG_RADIUS;
 	return [nw, se];
@@ -51,19 +82,19 @@ async function img_bbox(img: ImagePickerAsset): Promise<BBox> {
 /**
  * Create clusters from a set of `imgs`.
  */
-async function clusterize(imgs: ImagePickerAsset[], d: number): Promise<ImgCluster[]> {
+function clusterize(imgs: Img[], d: number): ImgCluster[] {
 	let clusters: ImgCluster[] = [];
 
-	let sum = await exif_pos(imgs[0]);
-	let ct = await exif_pos(imgs[0]);
+	let sum = imgs[0].getpos();
+	let ct = imgs[0].getpos();
 	let mareas = [imgs[0]];
 	let is = 0;
-	let push_cluster = async (i: number) => {
+	let push_cluster = (i: number) => {
 		// Get bounding box of entire cluster, essentially just computes min x/y
 		// for north-west and max x/y for south-east
-		let [nw, se] = await img_bbox(imgs[is]);
+		let [nw, se] = img_bbox(imgs[is]);
 		for (let j = is+1; j < i; j++) {
-			let [jnw, jse] = await img_bbox(imgs[j]);
+			let [jnw, jse] = img_bbox(imgs[j]);
 			if (jnw[0] < nw[0]) nw[0] = jnw[0];
 			if (jnw[1] < nw[1]) nw[1] = jnw[1];
 			if (jse[0] > se[0]) se[0] = jse[0];
@@ -79,16 +110,16 @@ async function clusterize(imgs: ImagePickerAsset[], d: number): Promise<ImgClust
 
 	for (let i = 1; i < imgs.length; i++) {
 		let img = imgs[i];
-		let pos = await exif_pos(img);
+		let pos = img.getpos();
 
 		// Check if the circle has grown too big
 		let dist = distance(ct, pos);
 		console.log(`Distance between ${ct} -> ${pos} = ${dist}`);
 		if (distance(ct, pos) > d) {
-			await push_cluster(i);
+			push_cluster(i);
 			mareas = [imgs[i]];
-			ct = await exif_pos(imgs[i]);
-			sum = await exif_pos(imgs[i]);
+			ct = imgs[i].getpos()
+			sum = imgs[i].getpos();
 			is = i;
 		} else {
 			mareas.push(imgs[i]);
@@ -99,23 +130,7 @@ async function clusterize(imgs: ImagePickerAsset[], d: number): Promise<ImgClust
 		}
 	}
 	// End of images, so the cluster is pushed as-is
-	await push_cluster(mareas.length);
+	push_cluster(mareas.length);
 
 	return clusters;
-}
-
-function exif_time(img: ImagePickerAsset): number {
-	return moment(img.timestamp, "YYYY:MM:DD HH:mm:ss").toDate().getTime();
-}
-
-async function exif_pos(img: any, fb?: number[]): Promise<number[]> {
-	fb = fb ? fb : POS_ZERO;
-
-	let res;
-	try { res = await Exif.getLatLong(img.uri); }
-	catch(err) { console.error(err); return fb;  }
-
-	console.log( JSON.stringify(res) );
-
-	return [res.longitude, res.latitude];
 }
