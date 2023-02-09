@@ -113,8 +113,6 @@ function clusterize(imgs: Img[], d: number): ImgCluster[] {
 		let pos = img.getpos();
 
 		// Check if the circle has grown too big
-		let dist = distance(ct, pos);
-		console.log(`Distance between ${ct} -> ${pos} = ${dist}`);
 		if (distance(ct, pos) > d) {
 			push_cluster(i);
 			mareas = [imgs[i]];
