@@ -12,9 +12,10 @@ type SigninEmailProps = {
 		"signin",
 		undefined
 	>;
+	top: number;
 };
 
-export const SigninEmail: FC<SigninEmailProps> = ({ navigation }) => {
+export const SigninEmail: FC<SigninEmailProps> = ({ navigation, top }) => {
 	const { signIn } = useContext(AuthContext);
 	const signin = async () => {
 		console.log("E-mail signin");
@@ -24,13 +25,16 @@ export const SigninEmail: FC<SigninEmailProps> = ({ navigation }) => {
 	return (
 		<Button
 			themeInverse
+			position="absolute"
+			zIndex={1}
 			size="$5"
 			bc="#808080"
 			color="#e6e6e6"
 			onPress={signin}
 			als="center"
-			width="80%"
+			width="75%"
 			icon={Mail}
+			top={top}
 		>
 			Log in with e-mail
 		</Button>

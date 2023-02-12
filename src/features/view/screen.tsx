@@ -28,12 +28,14 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 
 	useEffect(() => {
 		//if(!id) { return; }
+		if(!MAP.current || !CAMERA.current) { return; }
+		console.log( MAP.current );
 
-		MAP.current?.getVisibleBounds().then(b => console.log(b));
+		MAP.current.getVisibleBounds().then(b => console.log(b));
 
-		CAMERA.current?.setCamera({
-			centerCoordinate: [50, 8],
-			zoomLevel: 8,
+		CAMERA.current.setCamera({
+			centerCoordinate: [8, 50],
+			zoomLevel: 3,
 			animationDuration: 9500
 		});
 	}, []);

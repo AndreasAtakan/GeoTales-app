@@ -12,10 +12,10 @@ type SigninAppleProps = {
 		"signin",
 		undefined
 	>;
-	marginTop: number;
+	top: number;
 };
 
-export const SigninApple: FC<SigninAppleProps> = ({ navigation, marginTop }) => {
+export const SigninApple: FC<SigninAppleProps> = ({ navigation, top }) => {
 	const { signIn } = useContext(AuthContext);
 	const signin = async () => {
 		console.log("Apple signin");
@@ -25,13 +25,15 @@ export const SigninApple: FC<SigninAppleProps> = ({ navigation, marginTop }) => 
 	return (
 		<Button
 			themeInverse
+			position="absolute"
+			zIndex={1}
 			size="$5"
 			bc="#333333"
 			color="#e6e6e6"
 			onPress={signin}
-			width="100%"
+			width="95%"
 			icon={Apple}
-			marginTop={marginTop}
+			top={top}
 		>
 			Sign in with Apple
 		</Button>

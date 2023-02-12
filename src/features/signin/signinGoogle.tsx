@@ -12,9 +12,10 @@ type SigninGoogleProps = {
 		"signin",
 		undefined
 	>;
+	top: number;
 };
 
-export const SigninGoogle: FC<SigninGoogleProps> = ({ navigation }) => {
+export const SigninGoogle: FC<SigninGoogleProps> = ({ navigation, top }) => {
 	const { signIn } = useContext(AuthContext);
 	const signin = async () => {
 		console.log("Google signin");
@@ -24,11 +25,14 @@ export const SigninGoogle: FC<SigninGoogleProps> = ({ navigation }) => {
 	return (
 		<Button
 			themeInverse
+			position="absolute"
+			zIndex={1}
 			size="$5"
 			bc="#d0463b"
 			color="#e6e6e6"
 			onPress={signin}
-			width="100%"
+			width="95%"
+			top={top}
 		>
 			Sign in with Google
 		</Button>

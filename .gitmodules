@@ -1,0 +1,3 @@
+[submodule "rnmapbox"]
+	path = rnmapbox
+	url = https://github.com/AndreasAtakan/rnmapbox
