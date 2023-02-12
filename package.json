@@ -10,6 +10,7 @@
     "start": "react-native start",
     "info": "react-native info",
     "setup": "bash scripts/setup.sh",
+    "start:clear-cache": "yarn cache clean && yarn start --reset-cache",
     "upgrade:tamagui": "manypkg upgrade tamagui && manypkg upgrade @tamagui && manypkg upgrade tamagui-loader"
   },
   "dependencies": {
