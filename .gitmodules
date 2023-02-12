@@ -1,0 +1,3 @@
+[submodule "lib/rnmapbox"]
+	path = lib/rnmapbox
+	url = https://github.com/AndreasAtakan/rnmapbox
