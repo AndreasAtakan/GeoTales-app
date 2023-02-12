@@ -1735,9 +1735,10 @@
   dependencies:
     nanoid "^3.1.23"
 
-"@rnmapbox/maps@rnmapbox/maps#main":
-  version "10.0.0-beta.65"
-  resolved "https://codeload.github.com/rnmapbox/maps/tar.gz/120953b1054603e59b15bf9731d7227abb3724d4"
+"@rnmapbox/maps@^10.0.0-beta.68":
+  version "10.0.0-beta.68"
+  resolved "https://registry.yarnpkg.com/@rnmapbox/maps/-/maps-10.0.0-beta.68.tgz#440e3cba84b956bff065a9dd1d6b2309e967332c"
+  integrity sha512-EP07clAi67Q0d4UhFkLLc49AreQs0OAe5vpH8WQt2EyeX9r6UYy9tJhofNZrtxqUVanrxIbUNRdGTw/prA/5GA==
   dependencies:
     "@mapbox/geo-viewport" ">=0.4.0"
     "@turf/along" "6.5.0"
