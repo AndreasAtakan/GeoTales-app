@@ -3,7 +3,7 @@ const Exif: any = require("react-native-exif");
 import { distance } from "@turf/turf";
 import moment from "moment";
 
-const POS_ZERO = [0, 0];
+const POS_ZERO = [0,0];
 const IMG_RADIUS = 0.001;
 
 class Img {
@@ -14,6 +14,7 @@ class Img {
 	constructor(img: ImagePickerAsset) {
 		this.uri = img.uri as string;
 		this.timestamp = moment(img.timestamp, "YYYY:MM:DD HH:mm:ss").toDate().getTime();
+		// BUG?: I'm getting null values for this.timestamp when testing with pictures
 	}
 
 	getpos(): number[] {
@@ -48,12 +49,14 @@ export class Pres {
 	 *   - `imgs`: Images to construct presentation from
 	 *   - `d`: Maximum radius of image cluster in kilometers
 	 */
-	async initialize(img_picks: ImagePickerAsset[], d: number) {
-		let imgs = img_picks.map(i => new Img(i));
-		let awaits = imgs.map(i => i.load());
-		Promise.all(awaits); // await in parallel
-		imgs.sort((u, v) => u.timestamp - v.timestamp);
-		this.clusters = clusterize(imgs, d);
+	async initialize(imgs: ImagePickerAsset[], d: number) {
+		let l = [];
+		for(let i of imgs) {
+			let img = new Img(i); await img.load();
+			l.push(img);
+		}
+		l.sort((u, v) => u.timestamp - v.timestamp);
+		this.clusters = clusterize(l, d);
 	}
 
 	next() {

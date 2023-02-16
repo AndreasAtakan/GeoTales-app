@@ -4,8 +4,10 @@ import { Alert } from 'react-native';
 import { Plus } from "@tamagui/lucide-icons";
 import { Button } from "tamagui";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "react-native-image-picker";
 
+import uuid from "../../utils/uuid";
 import { Pres } from "../../autopres";
 
 type SelectImagesProps = {
@@ -36,7 +38,12 @@ export const SelectImages: FC<SelectImagesProps> = ({ navigation }) => {
 			let pres = new Pres();
 			await pres.initialize(res.assets, 10);
 
-			console.log(pres);
+			const id = uuid();
+			try {
+				await AsyncStorage.setItem( id, JSON.stringify(pres) );
+				navigation.replace("view", { id });
+			}
+			catch(err) { console.error(err); }
 		}
 	};
 

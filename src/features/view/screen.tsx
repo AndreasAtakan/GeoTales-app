@@ -8,6 +8,7 @@ import {
 	YStack
 } from "tamagui";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import MapboxGL from "@rnmapbox/maps";
 
 import { MainStack } from "../../components/MainStack";
@@ -27,17 +28,26 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 		  CAMERA = useRef<MapboxGL.Camera>(null);
 
 	useEffect(() => {
-		//if(!id) { return; }
+		if(!id) { return; }
 		if(!MAP.current || !CAMERA.current) { return; }
-		console.log( MAP.current );
 
 		MAP.current.getVisibleBounds().then(b => console.log(b));
-
-		CAMERA.current.setCamera({
+		/*CAMERA.current.setCamera({
 			centerCoordinate: [8, 50],
 			zoomLevel: 3,
 			animationDuration: 9500
-		});
+		});*/
+
+		AsyncStorage.getItem(id)
+		.then(res => {
+			if(!res) { return; }
+			let pres = JSON.parse(res);
+
+			console.log(pres);
+		})
+		.catch(err => console.error(err));
+
+		//
 	}, []);
 
 	return (
