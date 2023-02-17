@@ -1,16 +1,18 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { FC, useRef, useEffect } from "react";
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { FC, useRef, useEffect, useState } from "react";
+import { StyleSheet, Dimensions, Platform, ScrollView } from "react-native";
 import {
 	Text,
 	Image,
 	YGroup,
-	YStack
+	YStack,
+	XStack
 } from "tamagui";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MapboxGL from "@rnmapbox/maps";
 
+import uuid from "../../utils/uuid";
 import { MainStack } from "../../components/MainStack";
 
 // Mapbox access token: pk.eyJ1IjoiYW5kcmVhc2F0YWthbiIsImEiOiJja3dqbGlham0xMDAxMnhwazkydDRrbDRwIn0.zQJIqHf0Trp--7GHLc4ySg
@@ -22,30 +24,44 @@ const styles = StyleSheet.create({
 	map: { flex: 1, width: dim.width, height: dim.height }
 });
 
+const imgHeight = 200;
+const padding = { paddingBottom: imgHeight, paddingTop: 0, paddingLeft: 0, paddingRight: 0 };
+
 export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"> > = ({ route, navigation }) => {
 	const { id } = route.params;
 	const MAP = useRef<MapboxGL.MapView>(null),
 		  CAMERA = useRef<MapboxGL.Camera>(null);
+	const [ images, setImages ] = useState<string[] | null>(null);
 
-	useEffect(() => {
-		if(!id) { return; }
+	AsyncStorage.getItem(id)
+	.then(res => {
+		if(!res) { return; }
+		let pres = JSON.parse(res);
+
+		let imgs: string[] = [];
+		for(let c of pres.clusters) {
+			imgs = imgs.concat( c.imgs.map((e: any) => e.uri) );
+		}
+		setImages(imgs);
+	})
+	.catch(err => console.error(err));
+
+	let scrollEnd = async (ev: any) => {
 		if(!MAP.current || !CAMERA.current) { return; }
 
-		MAP.current.getVisibleBounds().then(b => console.log(b));
-		/*CAMERA.current.setCamera({
+		CAMERA.current.setCamera({
 			centerCoordinate: [8, 50],
 			zoomLevel: 3,
-			animationDuration: 9500
-		});*/
+			heading: 0,
+			pitch: 0,
+			animationDuration: 4500,
+			padding
+		});
+	};
 
-		AsyncStorage.getItem(id)
-		.then(res => {
-			if(!res) { return; }
-			let pres = JSON.parse(res);
-
-			console.log(pres);
-		})
-		.catch(err => console.error(err));
+	useEffect(() => {
+		if(!MAP.current || !CAMERA.current) { return; }
+		MAP.current.getVisibleBounds().then(b => console.log(b));
 
 		//
 	}, []);
@@ -53,8 +69,9 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 	return (
 		<MainStack>
 			<YStack
-				justifyContent="center"
-				alignItems="center"
+				jc="center"
+				ai="center"
+				minWidth="100%"
 				minHeight="100%"
 			>
 				<MapboxGL.MapView
@@ -72,8 +89,59 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 						centerCoordinate={[8, 50]}
 						zoomLevel={3}
 						animationMode="flyTo"
+						padding={padding}
 					/>
 				</MapboxGL.MapView>
+				<YStack
+					pos="absolute"
+					bottom={0}
+					left={0}
+					width={dim.width}
+					height={imgHeight}
+				>
+					<ScrollView // DOCS: https://reactnative.dev/docs/scrollview
+						horizontal={true}
+						pinchGestureEnabled={false}
+						pagingEnabled={true}
+						decelerationRate="normal"
+						snapToInterval={dim.width}
+						snapToAlignment="center"
+						contentContainerStyle={{ paddingHorizontal: 0 }}
+						contentInset={{
+							top: 0,
+							bottom: 0,
+							left: 0,
+							right: 0
+						}}
+						onScrollEndDrag={scrollEnd}
+					>
+						<XStack
+							width="auto"
+							height="100%"
+						>
+							{images?.map((img: string) => (
+								<>
+									<Image
+										key={uuid()}
+										src={img}
+										br={4}
+										width={dim.width - 30}
+										height={imgHeight - 10}
+										marginHorizontal={15}
+									/>
+									<Image
+										key={uuid()}
+										src={img}
+										br={4}
+										width={dim.width - 30}
+										height={imgHeight - 10}
+										marginHorizontal={15}
+									/>
+								</>
+							))}
+						</XStack>
+					</ScrollView>
+				</YStack>
 			</YStack>
 		</MainStack>
 	);
