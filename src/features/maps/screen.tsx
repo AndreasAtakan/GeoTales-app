@@ -20,6 +20,10 @@ export const MapsScreen: FC< NativeStackScreenProps<StackNavigatorParams, "maps"
 	const [ loading, setLoading ] = useState<boolean>(true);
 	const [ list, setList ] = useState<any>(null);
 
+	/*AsyncStorage.clear()
+	.then(() => console.log("Cleared"))
+	.catch(err => console.error(err));*/
+
 	useEffect(() => {
 		// DOCS: https://react-native-async-storage.github.io/async-storage/docs/api/#getallkeys
 		AsyncStorage.getAllKeys()

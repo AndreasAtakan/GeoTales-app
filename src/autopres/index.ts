@@ -3,10 +3,13 @@ const Exif: any = require("react-native-exif");
 import { distance } from "@turf/turf";
 import moment from "moment";
 
+import uuid from "../utils/uuid";
+
 const POS_ZERO = [0,0];
 const IMG_RADIUS = 0.001;
 
 class Img {
+	id: string = uuid();
 	pos: number[] | undefined;
 	uri: string;
 	timestamp: number;
@@ -42,6 +45,7 @@ class Img {
 /** Presentation */
 export class Pres {
 	clusters: ImgCluster[] = [];
+	imgs: Img[] = [];
 	slide: number = 0;
 
 	/**
@@ -50,13 +54,14 @@ export class Pres {
 	 *   - `d`: Maximum radius of image cluster in kilometers
 	 */
 	async initialize(imgs: ImagePickerAsset[], d: number) {
-		let l = [];
+		let l: Img[] = [];
 		for(let i of imgs) {
 			let img = new Img(i); await img.load();
 			l.push(img);
 		}
 		l.sort((u, v) => u.timestamp - v.timestamp);
 		this.clusters = clusterize(l, d);
+		this.imgs = l;
 	}
 
 	next() {
@@ -90,7 +95,7 @@ function clusterize(imgs: Img[], d: number): ImgCluster[] {
 
 	let sum = imgs[0].getpos();
 	let ct = imgs[0].getpos();
-	let mareas = [imgs[0]];
+	let mareas = [ imgs[0].id ];
 	let is = 0;
 	let push_cluster = (i: number) => {
 		// Get bounding box of entire cluster, essentially just computes min x/y
@@ -111,19 +116,19 @@ function clusterize(imgs: Img[], d: number): ImgCluster[] {
 		});
 	};
 
-	for (let i = 1; i < imgs.length; i++) {
+	for(let i = 1; i < imgs.length; i++) {
 		let img = imgs[i];
 		let pos = img.getpos();
 
 		// Check if the circle has grown too big
-		if (distance(ct, pos) > d) {
+		if(distance(ct, pos) > d) {
 			push_cluster(i);
-			mareas = [imgs[i]];
+			mareas = [ imgs[i].id ];
 			ct = imgs[i].getpos()
 			sum = imgs[i].getpos();
 			is = i;
-		} else {
-			mareas.push(imgs[i]);
+		}else{
+			mareas.push( imgs[i].id );
 			sum[0] += pos[0];
 			sum[1] += pos[1];
 			// Re-center, `ct` is the rolling average of positions in `mareas`

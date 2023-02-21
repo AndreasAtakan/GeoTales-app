@@ -4,5 +4,5 @@ type BBox = [ number[], number[] ];
 interface ImgCluster {
     center: number[],
     bbox: BBox,
-    imgs: ImagePickerAsset[],
+    imgs: string[],
 };
