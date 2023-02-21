@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { FC } from "react";
-import { Dimensions } from 'react-native';
+import { useWindowDimensions } from "react-native";
 import {
 	Text,
 	Image,
@@ -12,8 +12,7 @@ import { MainStack } from "../../components/MainStack";
 import { SelectImages } from "./select-images";
 
 export const CreateScreen: FC< NativeStackScreenProps<StackNavigatorParams, "create"> > = ({ navigation }) => {
-	const windowWidth = Dimensions.get('window').width,
-		  windowHeight = Dimensions.get('window').height;
+	const { height, width } = useWindowDimensions();
 
 	return (
 		<MainStack>
@@ -24,8 +23,8 @@ export const CreateScreen: FC< NativeStackScreenProps<StackNavigatorParams, "cre
 			>
 				<Image
 					src={require('../../assets/images/map_background.png')}
-					width={windowWidth}
-					height={windowHeight}
+					width={width}
+					height={height}
 					blurRadius={3}
 					position="absolute"
 					zIndex={0}

@@ -1,12 +1,12 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { FC, useRef, useEffect, useState } from "react";
-import { StyleSheet, Dimensions, Platform, ScrollView } from "react-native";
+import { StyleSheet, useWindowDimensions, ScrollView } from "react-native";
 import {
 	Text,
 	Image,
 	YGroup,
 	YStack,
-	XStack
+	XGroup
 } from "tamagui";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -18,25 +18,26 @@ import { MainStack } from "../../components/MainStack";
 MapboxGL.setWellKnownTileServer( MapboxGL.TileServers.MapLibre || "MapLibre" ); // MapboxGL.TileServers.Mapbox
 MapboxGL.setAccessToken(null);
 
-const dim = Dimensions.get('window');
-const styles = StyleSheet.create({
-	map: { flex: 1, width: dim.width, height: dim.height }
-});
-
-const imgHeight = 200;
-const padding = { paddingBottom: imgHeight, paddingTop: 0, paddingLeft: 0, paddingRight: 0 };
+const IMG_HEIGHT = 200;
+const padding = { paddingBottom: IMG_HEIGHT, paddingTop: 0, paddingLeft: 0, paddingRight: 0 };
 
 export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"> > = ({ route, navigation }) => {
 	const { id } = route.params;
 	const MAP = useRef<MapboxGL.MapView>(null),
 		  CAMERA = useRef<MapboxGL.Camera>(null);
+
+	const { height, width } = useWindowDimensions();
+	const styles = StyleSheet.create({
+		map: { flex: 1, width, height }
+	});
+
 	const [ pres, setPres ] = useState<any | null>(null);
 	const [ images, setImages ] = useState<string[] | null>(null);
-	const [ height, setHeight ] = useState<number>(imgHeight);
+	const [ imgHeight, setImgHeight ] = useState<number>(IMG_HEIGHT);
 	let c = 0;
 
 	let scrollEnd = async (ev: any) => {
-		setHeight(imgHeight);
+		setImgHeight(IMG_HEIGHT);
 
 		//console.log( ev.target._internalFiberInstanceHandleDEV.child );
 		//console.log(pres);
@@ -45,15 +46,13 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 
 		let center = null;
 		for(let c of pres.clusters) {
-			if( c.imgs.indexOf(id) > -1 || true ) {
-				console.log(c);
+			if( c.imgs.indexOf(id) > -1 ) {
 				center = c.center; break;
 			}
 		}
-		if(!center) { return; }
 
 		CAMERA.current?.setCamera({
-			centerCoordinate: center,
+			centerCoordinate: center || [8, 50],
 			zoomLevel: 7,
 			heading: 0,
 			pitch: 0,
@@ -62,9 +61,12 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 		});
 	};
 
+	let isFullscreen = false; // BUG: Need to click twice to minimize
 	let imgPress = async (ev: any) => {
 		//let img = ev.target._internalFiberInstanceHandleDEV.pendingProps.id;
-		setHeight(dim.height - 80);
+		if(isFullscreen) { setImgHeight(IMG_HEIGHT); }
+		else{ setImgHeight(height - 80); }
+		isFullscreen = !isFullscreen;
 	};
 
 	useEffect(() => {
@@ -111,15 +113,15 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 					pos="absolute"
 					bottom={0}
 					left={0}
-					width={dim.width}
-					height={height}
+					width={width}
+					height={imgHeight}
 				>
 					<ScrollView // DOCS: https://reactnative.dev/docs/scrollview
 						horizontal={true}
 						pinchGestureEnabled={false}
 						pagingEnabled={true}
 						decelerationRate="normal"
-						snapToInterval={dim.width}
+						snapToInterval={width}
 						snapToAlignment="center"
 						contentContainerStyle={{ paddingHorizontal: 0 }}
 						contentInset={{
@@ -130,19 +132,26 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 						}}
 						onScrollEndDrag={scrollEnd}
 					>
-						{images?.map((img: any) => (
-							<Image
-								key={c++}
-								id={img.id}
-								src={img.uri}
-								br={4}
-								width={dim.width - 30}
-								height={height - 20}
-								marginHorizontal={15}
-								marginVertical={10}
-								onPress={imgPress}
-							/>
-						))}
+						<XGroup
+							width="auto"
+							height="100%"
+							bc={null}
+							disablePassBorderRadius={true}
+						>
+							{images?.map((img: any) => (
+								<Image
+									key={c++}
+									id={img.id}
+									src={img.uri}
+									br={4}
+									width={width - 30}
+									height={imgHeight - 20}
+									marginHorizontal={15}
+									marginVertical={10}
+									onPress={imgPress}
+								/>
+							))}
+						</XGroup>
 					</ScrollView>
 				</YStack>
 			</YStack>

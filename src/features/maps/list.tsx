@@ -28,8 +28,8 @@ export const List: FC<ListProps> = ({ navigation, list }) => {
 			{list.map((id: string) => (
 				<ListItem
 					key={id}
-					hoverTheme
-					pressTheme
+					hoverTheme={true}
+					pressTheme={true}
 					title={`Map ${c++}`}
 					subTitle="Description"
 					icon={MapIcon}

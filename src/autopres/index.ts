@@ -53,10 +53,10 @@ export class Pres {
 	 *   - `imgs`: Images to construct presentation from
 	 *   - `d`: Maximum radius of image cluster in kilometers
 	 */
-	async initialize(imgs: ImagePickerAsset[], d: number) {
+	async initialize(imgs: ImagePickerAsset[], d: number, pos_zero?: number[]) {
 		let l: Img[] = [];
 		for(let i of imgs) {
-			let img = new Img(i); await img.load();
+			let img = new Img(i); await img.load(pos_zero);
 			l.push(img);
 		}
 		l.sort((u, v) => u.timestamp - v.timestamp);

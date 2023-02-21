@@ -1,11 +1,11 @@
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { FC } from "react";
-import { Alert } from 'react-native';
+import { Alert, PermissionsAndroid, Platform } from "react-native";
 import { Plus } from "@tamagui/lucide-icons";
 import { Button } from "tamagui";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as ImagePicker from "react-native-image-picker";
+import { CameraRoll } from "@react-native-camera-roll/camera-roll";
 
 import uuid from "../../utils/uuid";
 import { Pres } from "../../autopres";
@@ -18,25 +18,37 @@ type SelectImagesProps = {
 	>;
 };
 
+async function hasAndroidPermission() {
+	const permission = Platform.Version >= 33 ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
+
+	const hasPermission = await PermissionsAndroid.check(permission);
+	if(hasPermission) { return true; }
+
+	const status = await PermissionsAndroid.request(permission);
+	return status === 'granted';
+}
+
 export const SelectImages: FC<SelectImagesProps> = ({ navigation }) => {
 	const readImgs = async () => {
+		if(Platform.OS === "android" && !(await hasAndroidPermission())) { return; }
+
 		let res;
 		try {
-			// Docs: https://github.com/react-native-image-picker/react-native-image-picker
-			res = await ImagePicker.launchImageLibrary({
-				selectionLimit: 50,
-				//presentationStyle: "popover", // https://github.com/react-native-image-picker/react-native-image-picker#options
-				mediaType: 'mixed',
-				includeExtra: true
+			// DOCS: https://github.com/react-native-cameraroll/react-native-cameraroll
+			res = await CameraRoll.getPhotos({
+				first: 1000,
+				assetType: "All",
+				include: [ "location", "imageSize" ]
 			});
-		}
-		catch(err) {
+		}catch(err) {
 			Alert.alert('Error', `${err}`, [ { text: 'OK', onPress: () => console.log('OK') } ]);
 		}
 
-		if(res && !res.didCancel && res.assets) {
+		console.log( res );
+
+		/*if(res && !res.didCancel && res.assets) {
 			let pres = new Pres();
-			await pres.initialize(res.assets, 10);
+			await pres.initialize(res.assets, 10, [8, 50]);
 
 			const id = uuid();
 			try {
@@ -44,7 +56,7 @@ export const SelectImages: FC<SelectImagesProps> = ({ navigation }) => {
 				navigation.replace("view", { id });
 			}
 			catch(err) { console.error(err); }
-		}
+		}*/
 	};
 
 	return (

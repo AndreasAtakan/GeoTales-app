@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { FC } from "react";
-import { Dimensions } from 'react-native';
+import { useWindowDimensions } from "react-native";
 import {
 	Anchor,
 	H1,
@@ -18,8 +18,7 @@ import { SigninGoogle } from "./signinGoogle";
 import { SigninEmail } from "./signinEmail";
 
 export const SignInScreen: FC< NativeStackScreenProps<StackNavigatorParams, "signin"> > = ({ navigation }) => {
-	const windowWidth = Dimensions.get('window').width,
-		  windowHeight = Dimensions.get('window').height;
+	const { height, width } = useWindowDimensions();
 
 	return (
 		<MainStack>
@@ -30,15 +29,15 @@ export const SignInScreen: FC< NativeStackScreenProps<StackNavigatorParams, "sig
 			>
 				<Image
 					src={require('../../assets/images/map_background.png')}
-					width={windowWidth}
-					height={windowHeight}
+					width={width}
+					height={height}
 					blurRadius={3}
 					position="absolute"
 					zIndex={0}
 				/>
-				<SigninApple navigation={navigation} top={80} />
-				<SigninGoogle navigation={navigation} top={150} />
-				<SigninEmail navigation={navigation} top={240} />
+				<SigninApple navigation={navigation} top={30} />
+				<SigninGoogle navigation={navigation} top={100} />
+				<SigninEmail navigation={navigation} top={190} />
 			</YStack>
 		</MainStack>
 	);
