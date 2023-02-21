@@ -35,15 +35,6 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 	const [ height, setHeight ] = useState<number>(imgHeight);
 	let c = 0;
 
-	AsyncStorage.getItem(id)
-	.then(res => {
-		if(!res) { return; }
-		let p = JSON.parse(res);
-		setImages(p.imgs);
-		setPres(p);
-	})
-	.catch(err => console.error(err));
-
 	let scrollEnd = async (ev: any) => {
 		setHeight(imgHeight);
 
@@ -55,6 +46,7 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 		let center = null;
 		for(let c of pres.clusters) {
 			if( c.imgs.indexOf(id) > -1 || true ) {
+				console.log(c);
 				center = c.center; break;
 			}
 		}
@@ -78,6 +70,15 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 	useEffect(() => {
 		/*if(!MAP.current || !CAMERA.current) { return; }
 		MAP.current.getVisibleBounds().then(b => console.log(b));*/
+
+		AsyncStorage.getItem(id)
+		.then(res => {
+			if(!res) { return; }
+			let p = JSON.parse(res);
+			setImages(p.imgs);
+			setPres(p);
+		})
+		.catch(err => console.error(err));
 	}, []);
 
 	return (
@@ -129,24 +130,19 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 						}}
 						onScrollEndDrag={scrollEnd}
 					>
-						<XStack
-							width="auto"
-							height="100%"
-						>
-							{images?.map((img: any) => (
-								<Image
-									key={c++}
-									id={img.id}
-									src={img.uri}
-									br={4}
-									width={dim.width - 30}
-									height={height - 20}
-									marginHorizontal={15}
-									marginVertical={10}
-									onPressOut={imgPress}
-								/>
-							))}
-						</XStack>
+						{images?.map((img: any) => (
+							<Image
+								key={c++}
+								id={img.id}
+								src={img.uri}
+								br={4}
+								width={dim.width - 30}
+								height={height - 20}
+								marginHorizontal={15}
+								marginVertical={10}
+								onPress={imgPress}
+							/>
+						))}
 					</ScrollView>
 				</YStack>
 			</YStack>
