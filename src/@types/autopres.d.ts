@@ -6,3 +6,5 @@ interface ImgCluster {
     bbox: BBox,
     imgs: string[],
 };
+
+type ImageAsset = PhotoIdentifier.node;

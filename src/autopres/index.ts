@@ -1,44 +1,24 @@
-import { Asset as ImagePickerAsset } from "react-native-image-picker";
-const Exif: any = require("react-native-exif");
 import { distance } from "@turf/turf";
-import moment from "moment";
 
 import uuid from "../utils/uuid";
 
-const POS_ZERO = [0,0];
+const POS_ZERO = [8, 50];
 const IMG_RADIUS = 0.001;
 
 class Img {
 	id: string = uuid();
-	pos: number[] | undefined;
+	pos: number[];
 	uri: string;
 	timestamp: number;
+	ratio: number;
 
-	constructor(img: ImagePickerAsset) {
-		this.uri = img.uri as string;
-		this.timestamp = moment(img.timestamp, "YYYY:MM:DD HH:mm:ss").toDate().getTime();
-		// BUG?: I'm getting null values for this.timestamp when testing with pictures
-	}
+	constructor(img: ImageAsset, pos_zero?: number[]) {
+		this.uri = img.image.uri;
+		this.timestamp = img.timestamp; // NOTE: is already in epoch-time
+		this.ratio = img.image.width / img.image.height;
 
-	getpos(): number[] {
-		if (!this.pos) {
-			throw new Error("Attempted to get position of uninitialized Img");
-		}
-		return this.pos.slice(0);
-	}
-
-	/**
-	 * Load image data from disk, setting gps position to `pos_zero` if there is
-	 * no exif gps data.
-	 */
-	async load(pos_zero?: number[]) {
-		try {
-			let res = await Exif.getLatLong(this.uri);
-			this.pos = [res.longitude, res.latitude];
-		} catch (err) {
-			console.error(err);
-			this.pos = pos_zero ? pos_zero : POS_ZERO;
-		}
+		let l = img.location;
+		this.pos = l ? [ l.longitude, l.latitude ] : pos_zero || POS_ZERO;
 	}
 }
 
@@ -53,12 +33,8 @@ export class Pres {
 	 *   - `imgs`: Images to construct presentation from
 	 *   - `d`: Maximum radius of image cluster in kilometers
 	 */
-	async initialize(imgs: ImagePickerAsset[], d: number, pos_zero?: number[]) {
-		let l: Img[] = [];
-		for(let i of imgs) {
-			let img = new Img(i); await img.load(pos_zero);
-			l.push(img);
-		}
+	constructor(imgs: ImageAsset[], d: number, pos_zero?: number[]) {
+		let l: Img[] = imgs.map(i => new Img(i, pos_zero));
 		l.sort((u, v) => u.timestamp - v.timestamp);
 		this.clusters = clusterize(l, d);
 		this.imgs = l;
@@ -78,10 +54,10 @@ export class Pres {
  * 2*IMG_RADIUS centered on the image GPS location.
  */
 function img_bbox(img: Img): BBox {
-	let nw = img.getpos();
+	let nw = img.pos;
 	nw[0] -= IMG_RADIUS;
 	nw[1] -= IMG_RADIUS;
-	let se = img.getpos();
+	let se = img.pos;
 	se[0] += IMG_RADIUS;
 	se[1] += IMG_RADIUS;
 	return [nw, se];
@@ -93,8 +69,8 @@ function img_bbox(img: Img): BBox {
 function clusterize(imgs: Img[], d: number): ImgCluster[] {
 	let clusters: ImgCluster[] = [];
 
-	let sum = imgs[0].getpos();
-	let ct = imgs[0].getpos();
+	let sum = imgs[0].pos;
+	let ct = imgs[0].pos;
 	let mareas = [ imgs[0].id ];
 	let is = 0;
 	let push_cluster = (i: number) => {
@@ -118,14 +94,14 @@ function clusterize(imgs: Img[], d: number): ImgCluster[] {
 
 	for(let i = 1; i < imgs.length; i++) {
 		let img = imgs[i];
-		let pos = img.getpos();
+		let pos = img.pos;
 
 		// Check if the circle has grown too big
 		if(distance(ct, pos) > d) {
 			push_cluster(i);
 			mareas = [ imgs[i].id ];
-			ct = imgs[i].getpos()
-			sum = imgs[i].getpos();
+			ct = imgs[i].pos;
+			sum = imgs[i].pos;
 			is = i;
 		}else{
 			mareas.push( imgs[i].id );

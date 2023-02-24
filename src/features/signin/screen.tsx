@@ -21,24 +21,22 @@ export const SignInScreen: FC< NativeStackScreenProps<StackNavigatorParams, "sig
 	const { height, width } = useWindowDimensions();
 
 	return (
-		<MainStack>
-			<YStack
-				justifyContent="center"
-				alignItems="center"
-				minHeight="100%"
-			>
-				<Image
-					src={require('../../assets/images/map_background.png')}
-					width={width}
-					height={height}
-					blurRadius={3}
-					position="absolute"
-					zIndex={0}
-				/>
-				<SigninApple navigation={navigation} top={30} />
-				<SigninGoogle navigation={navigation} top={100} />
-				<SigninEmail navigation={navigation} top={190} />
-			</YStack>
+		<MainStack
+			justifyContent="center"
+			alignItems="center"
+			minHeight="100%"
+		>
+			<Image
+				src={require('../../assets/images/map_background.png')}
+				width={width}
+				height={height}
+				blurRadius={3}
+				position="absolute"
+				zIndex={0}
+			/>
+			<SigninApple navigation={navigation} top={30} />
+			<SigninGoogle navigation={navigation} top={100} />
+			<SigninEmail navigation={navigation} top={190} />
 		</MainStack>
 	);
 };

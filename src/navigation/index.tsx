@@ -20,12 +20,12 @@ export const NativeNavigation: FC = () => {
 	return (
 		<Stack.Navigator
 			screenOptions={{
-				title: "",
+				title: '',
 				headerStyle: {
 					backgroundColor: headerColor
 				},
 				headerTintColor: '#fff',
-				headerBackTitle: "",
+				headerBackTitle: '',
 				headerBackTitleVisible: false,
 				headerShadowVisible: true,
 				headerTitleAlign: 'center',
@@ -52,7 +52,7 @@ export const NativeNavigation: FC = () => {
 					/>
 					<Stack.Screen
 						options={{
-							//headerShown: false
+							headerShown: false
 						}}
 						name="view"
 						component={ViewScreen}

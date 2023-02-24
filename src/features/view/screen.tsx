@@ -1,12 +1,12 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { FC, useRef, useEffect, useState } from "react";
-import { StyleSheet, useWindowDimensions, ScrollView } from "react-native";
+import { StyleSheet, useWindowDimensions, FlatList } from "react-native";
+//import { TouchableOpacity } from "react-native-gesture-handler";
 import {
 	Text,
 	Image,
 	YGroup,
-	YStack,
-	XGroup
+	YStack
 } from "tamagui";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -32,15 +32,11 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 	});
 
 	const [ pres, setPres ] = useState<any | null>(null);
-	const [ images, setImages ] = useState<string[] | null>(null);
+	const [ images, setImages ] = useState<any[] | null>(null);
 	const [ imgHeight, setImgHeight ] = useState<number>(IMG_HEIGHT);
-	let c = 0;
 
 	let scrollEnd = async (ev: any) => {
-		setImgHeight(IMG_HEIGHT);
-
 		//console.log( ev.target._internalFiberInstanceHandleDEV.child );
-		//console.log(pres);
 		if(!pres) { return; }
 		let id = "0";
 
@@ -61,14 +57,6 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 		});
 	};
 
-	let isFullscreen = false; // BUG: Need to click twice to minimize
-	let imgPress = async (ev: any) => {
-		//let img = ev.target._internalFiberInstanceHandleDEV.pendingProps.id;
-		if(isFullscreen) { setImgHeight(IMG_HEIGHT); }
-		else{ setImgHeight(height - 80); }
-		isFullscreen = !isFullscreen;
-	};
-
 	useEffect(() => {
 		/*if(!MAP.current || !CAMERA.current) { return; }
 		MAP.current.getVisibleBounds().then(b => console.log(b));*/
@@ -84,76 +72,66 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 	}, []);
 
 	return (
-		<MainStack>
-			<YStack
-				jc="center"
-				ai="center"
-				minWidth="100%"
-				minHeight="100%"
+		<MainStack
+			style={{ width, height }}
+		>
+			<MapboxGL.MapView
+				ref={MAP}
+				projection="globe" // NOTE: globe view is only available with mapbox, not configured
+				logoEnabled={false}
+				attributionPosition={{ bottom: 5, right: 5 }}
+				compassEnabled={true}
+				surfaceView={true}
+				style={styles.map}
+				styleURL="https://api.maptiler.com/maps/basic-v2/style.json?key=wq39CbUriaDcSFHF3N9a"
 			>
-				<MapboxGL.MapView
-					ref={MAP}
-					projection="globe" // NOTE: globe view is only available with mapbox, not configured
-					logoEnabled={false}
-					attributionPosition={{ bottom: 5, right: 5 }}
-					compassEnabled={true}
-					surfaceView={true}
-					style={styles.map}
-					styleURL="https://api.maptiler.com/maps/basic-v2/style.json?key=wq39CbUriaDcSFHF3N9a"
-				>
-					<MapboxGL.Camera
-						ref={CAMERA}
-						centerCoordinate={[8, 50]}
-						zoomLevel={3}
-						animationMode="flyTo"
-						padding={padding}
-					/>
-				</MapboxGL.MapView>
-				<YStack
-					pos="absolute"
-					bottom={0}
-					left={0}
-					width={width}
-					height={imgHeight}
-				>
-					<ScrollView // DOCS: https://reactnative.dev/docs/scrollview
-						horizontal={true}
-						pinchGestureEnabled={false}
-						pagingEnabled={true}
-						decelerationRate="normal"
-						snapToInterval={width}
-						snapToAlignment="center"
-						contentContainerStyle={{ paddingHorizontal: 0 }}
-						contentInset={{
-							top: 0,
-							bottom: 0,
-							left: 0,
-							right: 0
-						}}
-						onScrollEndDrag={scrollEnd}
-					>
-						<XGroup
-							width="auto"
-							height="100%"
-							bc={null}
-							disablePassBorderRadius={true}
-						>
-							{images?.map((img: any) => (
-								<Image
-									key={c++}
-									id={img.id}
-									src={img.uri}
-									br={4}
-									width={width - 30}
-									height={imgHeight - 20}
-									marginHorizontal={15}
-									marginVertical={10}
-									onPress={imgPress}
-								/>
-							))}
-						</XGroup>
-					</ScrollView>
-				</YStack>
+				<MapboxGL.Camera
+					ref={CAMERA}
+					centerCoordinate={[8, 50]}
+					zoomLevel={3}
+					animationMode="flyTo"
+					padding={padding}
+				/>
+			</MapboxGL.MapView>
+			<YStack
+				pos="absolute"
+				bottom={0}
+				left={0}
+				width={width}
+				height={imgHeight}
+			>
+				<FlatList // DOCS: https://reactnative.dev/docs/scrollview
+					horizontal={true}
+					pinchGestureEnabled={false}
+					showsHorizontalScrollIndicator={false}
+					pagingEnabled={true}
+					decelerationRate="normal"
+					snapToInterval={width}
+					snapToAlignment="center"
+					contentContainerStyle={{ paddingHorizontal: 0 }}
+					contentInset={{
+						top: 0, bottom: 0, left: 0, right: 0
+					}}
+					getItemLayout={(item, index) => ({
+						length: width, offset: width * index, index
+					})}
+					onScrollEndDrag={scrollEnd}
+					data={images}
+					keyExtractor={item => item.id}
+					renderItem={({item}) => (
+						<Image
+							id={item.id}
+							src={item.uri}
+							br={4}
+							width={width - 30}
+							height={imgHeight - 20}
+							marginHorizontal={15}
+							marginVertical={10}
+							//onPressIn={() => setImgHeight(height - 80)}
+							//onPressOut={() => setImgHeight(IMG_HEIGHT)}
+						/>
+					)}
+				/>
 			</YStack>
 		</MainStack>
 	);
