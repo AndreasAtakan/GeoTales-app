@@ -19,9 +19,15 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { CameraRoll, PhotoIdentifier } from "@react-native-camera-roll/camera-roll";
 
+import uuid from "../../utils/uuid";
+
+import Pres from "../../autopres";
+
 import { MainStack } from "../../components/MainStack";
 import { LoadingModal } from "./loading-modal";
+import { JourneysModal } from "./journeys-modal";
 import { JourneyModal } from "./journey-modal";
+import { SelectModal } from "./select-modal";
 
 async function hasAndroidPermission() {
 	const permission = Platform.Version >= 33 ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
@@ -42,13 +48,12 @@ async function hasAndroidPermission() {
 export const CreateScreen: FC< NativeStackScreenProps<StackNavigatorParams, "create"> > = ({ navigation }) => {
 	const { height, width } = useWindowDimensions();
 
+	const [ images, setImages ] = useState<any[] | null>(null);
+
 	const [ loading, setLoading ] = useState<boolean>(false);
 	const [ journeys, setJourneys ] = useState<any[] | null>(null);
-	const [ openSelect, setOpenSelect ] = useState<boolean>(false);
-	const [ openCustom, setOpenCustom ] = useState<boolean>(false);
-	//const [ position, setPosition ] = useState<number>(0);
-	//const [ journeys, setJourneys ] = useState<any | null>(null);
-	//const [ ready, setReady ] = useState<boolean>(false);
+	const [ journey, setJourney ] = useState<any[] | null>(null);
+	const [ select, setSelect ] = useState<boolean>(false);
 
 	const readImgs = async () => {
 		if(Platform.OS === "android" && !(await hasAndroidPermission())) {
@@ -66,27 +71,37 @@ export const CreateScreen: FC< NativeStackScreenProps<StackNavigatorParams, "cre
 				include: [ "location", "imageSize" ]
 			});
 
-			let images = res.edges.filter((v: PhotoIdentifier) => !!v.node.location).map((v: PhotoIdentifier) => v.node);
-			images.sort((u, v) => u.timestamp - v.timestamp);
-			console.log( images.length );
+			let imgs = res.edges.filter((v: PhotoIdentifier) => !!v.node.location).map((v: PhotoIdentifier) => v.node);
+			imgs.sort((u, v) => u.timestamp - v.timestamp);
+			setImages(imgs);
+			console.log( imgs.length );
 
 			// TODO: Call algo that turns image list into suggested journeys
-			// images = algo(images);
+			// imgs = algo(imgs);
 
 			setLoading(false);
 
-			let l = []; for(let i = 0; i < 15; i++) { l.push(images); }
+			let l = []; for(let i = 0; i < 5; i++) { l.push(imgs); }
 			setJourneys(l);
+		}
+		catch(err) {
+			setLoading(false);
+			Alert.alert('Error', `${err}`, [ { text: 'OK', onPress: () => console.log('OK') } ]);
+		}
+	};
 
+	let createMap = async (imgs: any[]) => {
+		setLoading(true);
 
-
-
-
-			/*let pres = new Pres(images, 10, [8, 50]);
+		try {
+			let pres = new Pres(imgs, 10, [8, 50]);
 
 			const id = uuid();
 			await AsyncStorage.setItem( id, JSON.stringify(pres) );
-			navigation.replace("view", { id });*/
+
+			setLoading(false);
+
+			navigation.replace("view", { id });
 		}
 		catch(err) {
 			setLoading(false);
@@ -119,8 +134,42 @@ export const CreateScreen: FC< NativeStackScreenProps<StackNavigatorParams, "cre
 				Choose journeys
 			</Button>
 
-			<LoadingModal navigation={navigation} loading={loading} />
-			<JourneyModal navigation={navigation} journeys={journeys} />
+			<LoadingModal
+				navigation={navigation}
+				loading={loading}
+			/>
+			<JourneysModal
+				navigation={navigation}
+				journeys={journeys}
+				openJourneySelect={(index: number) => {
+					if(!journeys) { return }
+					setJourneys(null);
+					setJourney( journeys[index] );
+				}}
+				openManualSelect={() => {
+					setJourneys(null);
+					setSelect(true);
+				}}
+			/>
+			<JourneyModal
+				navigation={navigation}
+				journey={journey}
+				cancel={() => setJourney(null)}
+				create={(l) => {
+					setJourney(null);
+					createMap(l || images || []);
+				}}
+			/>
+			<SelectModal
+				navigation={navigation}
+				open={select}
+				images={images}
+				cancel={() => setSelect(false)}
+				create={(l) => {
+					setSelect(false);
+					createMap(l || images || []);
+				}}
+			/>
 		</MainStack>
 	);
 };

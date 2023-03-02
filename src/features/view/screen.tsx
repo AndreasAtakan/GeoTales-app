@@ -11,12 +11,13 @@ import {
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MapboxGL from "@rnmapbox/maps";
+import { Terrain as MapboxGLTerrain } from "@rnmapbox/maps";
 
 import { MainStack } from "../../components/MainStack";
 
-// Mapbox access token: pk.eyJ1IjoiYW5kcmVhc2F0YWthbiIsImEiOiJja3dqbGlham0xMDAxMnhwazkydDRrbDRwIn0.zQJIqHf0Trp--7GHLc4ySg
-MapboxGL.setWellKnownTileServer( MapboxGL.TileServers.MapLibre || "MapLibre" ); // MapboxGL.TileServers.Mapbox
-MapboxGL.setAccessToken(null);
+// Access token: pk.eyJ1IjoiYW5kcmVhc2F0YWthbiIsImEiOiJja3dqbGlham0xMDAxMnhwazkydDRrbDRwIn0.zQJIqHf0Trp--7GHLc4ySg
+MapboxGL.setWellKnownTileServer( MapboxGL.TileServers.Mapbox || "Mapbox" ); // MapboxGL.TileServers.MapLibre
+MapboxGL.setAccessToken("pk.eyJ1IjoiYW5kcmVhc2F0YWthbiIsImEiOiJja3dqbGlham0xMDAxMnhwazkydDRrbDRwIn0.zQJIqHf0Trp--7GHLc4ySg");
 
 const IMG_HEIGHT = 200;
 const padding = { paddingBottom: IMG_HEIGHT, paddingTop: 0, paddingLeft: 0, paddingRight: 0 };
@@ -77,21 +78,53 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 		>
 			<MapboxGL.MapView
 				ref={MAP}
-				projection="globe" // NOTE: globe view is only available with mapbox, not configured
-				logoEnabled={false}
+				projection="globe" // NOTE: globe view only available with mapbox
 				attributionPosition={{ bottom: 5, right: 5 }}
+				logoEnabled={false}
 				compassEnabled={true}
-				surfaceView={true}
+				compassFadeWhenNorth={true}
+				scaleBarEnabled={false}
+				//surfaceView={true}
 				style={styles.map}
-				styleURL="https://api.maptiler.com/maps/basic-v2/style.json?key=wq39CbUriaDcSFHF3N9a"
+				styleURL="mapbox://styles/andreasatakan/cknsrmz140j2o17o3g4chphee"
 			>
 				<MapboxGL.Camera
 					ref={CAMERA}
 					centerCoordinate={[8, 50]}
 					zoomLevel={3}
-					animationMode="flyTo"
 					padding={padding}
+					animationMode="flyTo"
+					maxZoomLevel={22}
 				/>
+				<MapboxGL.RasterDemSource
+					id="terrain"
+					url="mapbox://mapbox.mapbox-terrain-dem-v1"
+					maxZoomLevel={14}
+				>
+					<MapboxGL.Atmosphere
+						style={{
+							color: 'rgb(186, 210, 235)',
+							highColor: 'rgb(36, 92, 223)',
+							horizonBlend: 0.02,
+							spaceColor: 'rgb(11, 11, 25)',
+							starIntensity: 0.6
+						}}
+					/>
+					<MapboxGL.SkyLayer
+						id="sky-layer"
+						style={{
+							skyType: 'atmosphere',
+							skyAtmosphereSun: [0.0, 0.0],
+							skyAtmosphereSunIntensity: 15.0
+						}}
+					/>
+					<MapboxGLTerrain
+						style={{
+							source: "terrain",
+							exaggeration: 1
+						}}
+					/>
+				</MapboxGL.RasterDemSource>
 			</MapboxGL.MapView>
 			<YStack
 				pos="absolute"

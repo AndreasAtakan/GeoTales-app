@@ -14,26 +14,27 @@ import {
 
 //import getdate from "../../utils/getdate";
 
-type JourneyModalProps = {
+type SelectModalProps = {
 	navigation: NativeStackNavigationProp<
 		StackNavigatorParams,
 		"create",
 		undefined
 	>;
-	journey: any[] | null;
+	open: boolean;
+	images: any[] | null;
 	cancel: () => void;
 	create: (l: any[] | null) => void;
 };
 
-export const JourneyModal: FC<JourneyModalProps> = ({ navigation, journey, cancel, create }) => {
+export const SelectModal: FC<SelectModalProps> = ({ navigation, open, images, cancel, create }) => {
 	const { height, width } = useWindowDimensions();
 	const w = width / 2 - 20;
 
 	return (
 		<Sheet
-			forceRemoveScrollEnabled={!!journey}
+			forceRemoveScrollEnabled={open}
 			modal={true}
-			open={!!journey}
+			open={open}
 			snapPoints={[90]}
 			disableDrag={true}
 			dismissOnSnapToBottom={false}
@@ -73,7 +74,7 @@ export const JourneyModal: FC<JourneyModalProps> = ({ navigation, journey, cance
 					alwaysBounceVertical={false}
 					pinchGestureEnabled={false}
 					numColumns={2}
-					data={journey}
+					data={images}
 					keyExtractor={(item, index) => index.toString()}
 					renderItem={({ item }) => {
 						const r = item.image.width / item.image.height;

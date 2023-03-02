@@ -67,67 +67,45 @@ export const MapsScreen: FC< NativeStackScreenProps<StackNavigatorParams, "maps"
 				}
 				data={list}
 				keyExtractor={(item, index) => index.toString()}
-				renderItem={({ item }) => (
-					<Card
-						theme="light"
-						width={width - 20}
-						height={width / item.imgs[0].ratio || 600}
-						elevate={true}
-						marginVertical={15}
-						marginHorizontal={10}
-						animation="quick"
-						pressStyle={{ opacity: 0.8 }}
-						onPress={() => goto(item.id)}
-					>
-						<Card.Header
-							ai="center"
-							marginTop={30}
+				renderItem={({ item }) => {
+					let f = item.imgs[0], l = item.imgs[ item.imgs.length - 1 ];
+					const w = Math.min( width - 12, 350 );
+
+					return (
+						<Card
+							theme="light"
+							width={w - 20}
+							height={w / f.ratio}
+							elevate={true}
+							marginVertical={15}
+							marginHorizontal={6}
+							animation="quick"
+							pressStyle={{ opacity: 0.8 }}
+							onPress={() => goto(item.id)}
 						>
-							<H2 color="#e6e6e6">
-								{`${getdate(item.imgs[0].timestamp)} – ${getdate(item.imgs[ item.imgs.length - 1 ].timestamp)}`}
-							</H2>
-						</Card.Header>
-						<Card.Background>
-							<Image
-								width={width}
-								height={width / item.imgs[0].ratio || 600}
-								resizeMode="contain"
-								als="center"
-								src={item.imgs[0].uri}
-								blurRadius={10}
-							/>
-						</Card.Background>
-					</Card>
-				)}
+							<Card.Header
+								ai="center"
+								marginTop={30}
+							>
+								<H2 color="#e6e6e6">
+									{`${getdate(f.timestamp)} – ${getdate(l.timestamp)}`}
+								</H2>
+							</Card.Header>
+							<Card.Background>
+								<Image
+									width={w}
+									height={w / f.ratio}
+									resizeMode="contain"
+									als="center"
+									src={f.uri}
+									blurRadius={10}
+								/>
+							</Card.Background>
+						</Card>
+					);
+				}}
 			/>
 			<Fab navigation={navigation} />
 		</MainStack>
 	);
 };
-
-/*
-
-<YStack
-	f={1}
-	jc={list ? "flex-start" : "center"}
-	ai="center"
-	height={list ? "auto" : 250}
->
-	{
-		loading ?
-		(
-			<Spinner size="large" color={headerColor} />
-		) :
-		(
-			list ?
-			(
-				<List navigation={navigation} list={list} />
-			) :
-			(
-				<Text color="#999">No maps found</Text>
-			)
-		)
-	}
-</YStack>
-
-*/

@@ -23,7 +23,7 @@ class Img {
 }
 
 /** Presentation */
-export class Pres {
+export default class Pres {
 	clusters: ImgCluster[] = [];
 	imgs: Img[] = [];
 	slide: number = 0;
