@@ -5,7 +5,7 @@
   "packageManager": "yarn@3.2.0",
   "scripts": {
     "android": "react-native run-android",
-    "android:build-apk": "./android/gradlew assembleRelease", // Generate signing key first: https://reactnative.dev/docs/signed-apk-android
+    "android:build-apk": "./android/gradlew assembleRelease",
     "android:build": "./android/gradlew bundleRelease",
     "ios": "react-native run-ios",
     "lint": "eslint .",
