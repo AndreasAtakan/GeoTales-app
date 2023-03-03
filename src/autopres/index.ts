@@ -90,9 +90,9 @@ class BBox3 {
 
     explode(): BBox3[] {
         // Unit vectors to move boxes along
-        let xhat = new V3((this.min.x + this.max.x) / 2, 0, 0);
-        let yhat = new V3(0, (this.min.y + this.max.y) / 2, 0);
-        let zhat = new V3(0, 0, (this.min.z + this.max.z) / 2);
+        let xhat = new V3((this.max.x - this.min.x) / 2, 0, 0);
+        let yhat = new V3(0, (this.max.y - this.min.y) / 2, 0);
+        let zhat = new V3(0, 0, (this.max.z - this.min.z) / 2);
 
         let ba = new BBox3(this.min, this.core);
         let bb = ba.add(yhat);
