@@ -49,6 +49,37 @@ export default class Pres {
     }
 }
 
+export class V2 {
+    x: number;
+    y: number;
+
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
+
+    toString() {
+        return `[${this.x}, ${this.y}]`;
+    }
+
+    add(o: V2): V2 {
+        return new V2(this.x + o.x, this.y + o.y);
+    }
+
+    sub(o: V2): V2 {
+        return new V2(this.x - o.x, this.y - o.y);
+    }
+
+    scale(s: number): V2 {
+        return new V2(this.x * s, this.y * s);
+    }
+
+    len(): number {
+        return Math.sqrt(this.x * this.x + this.y * this.y);
+    }
+}
+
+
 class V3 {
     x: number;
     y: number;
@@ -58,6 +89,10 @@ class V3 {
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+
+    toString() {
+        return `[${this.x}, ${this.y}, ${this.z}]`;
     }
 
     add(o: V3): V3 {

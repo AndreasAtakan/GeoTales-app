@@ -28,6 +28,7 @@
     "@tamagui/shorthands": "1.0.21",
     "@tamagui/theme-base": "1.0.21",
     "@turf/turf": "^6.5.0",
+    "@types/jest": "^29.4.0",
     "@types/victor": "^1.1.0",
     "expo-linear-gradient": "^12.0.1",
     "expo-modules-core": "^1.1.1",
