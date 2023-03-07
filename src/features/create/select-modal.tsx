@@ -1,16 +1,15 @@
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { FC } from "react";
+import { FC, useState } from "react";
 import { useWindowDimensions, FlatList } from "react-native";
+//import { withDecay } from "react-native-reanimated/lib/types/lib/reanimated2/animation";
 import {
-	H3,
-	Button,
-	XStack,
-	XGroup,
-	Spinner,
-	Sheet,
 	Card,
+	Button,
+	XGroup,
+	Sheet,
 	Image
 } from "tamagui";
+import { CheckCircle } from "@tamagui/lucide-icons";
 
 //import getdate from "../../utils/getdate";
 
@@ -22,13 +21,21 @@ type SelectModalProps = {
 	>;
 	open: boolean;
 	images: any[] | null;
-	cancel: () => void;
-	create: (l: any[] | null) => void;
+	back: () => void;
+	create: (l: any[]) => void;
 };
 
-export const SelectModal: FC<SelectModalProps> = ({ navigation, open, images, cancel, create }) => {
+export const SelectModal: FC<SelectModalProps> = ({ navigation, open, images, back, create }) => {
 	const { height, width } = useWindowDimensions();
-	const w = width / 2 - 20;
+	const d = width / 2 - 6;
+
+	const [ selected, setSelected ] = useState<boolean[]>( Array( images?.length ).fill(false) );
+
+	let toggle = (index: number) => {
+		let s = [...selected];
+		s[index] = !s[index];
+		setSelected(s);
+	};
 
 	return (
 		<Sheet
@@ -54,9 +61,9 @@ export const SelectModal: FC<SelectModalProps> = ({ navigation, open, images, ca
 						w={0.3 * width - 10}
 						size="$4"
 						marginLeft={10}
-						onPress={cancel}
+						onPress={back}
 					>
-						Cancel
+						Back
 					</Button>
 					<Button
 						w={0.7 * width - 10}
@@ -64,7 +71,9 @@ export const SelectModal: FC<SelectModalProps> = ({ navigation, open, images, ca
 						bc="$blue6Light"
 						color="$gray11Light"
 						marginRight={10}
-						onPress={() => create(null)}
+						onPress={() => create(
+							(images || []).filter((e,i) => selected[i])
+						)}
 					>
 						Add to map
 					</Button>
@@ -76,26 +85,36 @@ export const SelectModal: FC<SelectModalProps> = ({ navigation, open, images, ca
 					numColumns={2}
 					data={images}
 					keyExtractor={(item, index) => index.toString()}
-					renderItem={({ item }) => {
-						const r = item.image.width / item.image.height;
-						let h = w / r;
-
-						return (
-							<Image
-								br={4}
-								width={w}
-								height={h}
-								resizeMode="contain"
-								als="center"
-								src={item.image.uri}
-								marginVertical={10}
-								marginHorizontal={10}
-								//animation="quick"
-								//pressStyle={{ opacity: 0.8 }}
-								//onPress={() => openJourneySelect(c++)}
-							/>
-						);
-					}}
+					renderItem={({ item, index }) => (
+						<Card
+							theme="light"
+							width={d}
+							height={d}
+							elevate={true}
+							marginVertical={3}
+							marginHorizontal={3}
+							animation="quick"
+							pressStyle={{ opacity: 0.8 }}
+							onPress={() => toggle(index)}
+						>
+							{selected[index] && (
+								<Card.Footer padded>
+									<CheckCircle size={35} color="#00cc00" />
+								</Card.Footer>
+							)}
+							<Card.Background>
+								<Image
+									br={4}
+									width={d}
+									height={d}
+									resizeMode="cover"
+									als="center"
+									src={item.image.uri}
+									//blurRadius={selected[index] ? 0 : 8}
+								/>
+							</Card.Background>
+						</Card>
+					)}
 				/>
 			</Sheet.Frame>
 		</Sheet>

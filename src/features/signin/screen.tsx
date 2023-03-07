@@ -2,13 +2,6 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { FC } from "react";
 import { useWindowDimensions } from "react-native";
 import {
-	Anchor,
-	H1,
-	ListItem,
-	Paragraph,
-	Separator,
-	YGroup,
-	YStack,
 	Image
 } from "tamagui";
 
