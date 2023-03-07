@@ -12,7 +12,7 @@ import { CameraRoll, PhotoIdentifier } from "@react-native-camera-roll/camera-ro
 
 import uuid from "../../utils/uuid";
 
-import Pres from "../../autopres";
+import { Pres } from "../../autopres";
 
 import { MainStack } from "../../components/MainStack";
 import { LoadingModal } from "./loading-modal";
