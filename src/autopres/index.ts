@@ -5,7 +5,7 @@ import uuid from "../utils/uuid";
 const POS_ZERO = [8, 50];
 const IMG_RADIUS = 0.001;
 
-class Img {
+export class Img {
     id: string = uuid();
     pos: number[];
     uri: string;

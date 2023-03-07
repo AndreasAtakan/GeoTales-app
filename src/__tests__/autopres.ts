@@ -16,7 +16,15 @@ function make_test_imgs(n: number, r: number, d: number): Img[] {
         for (let j = 0; j < k; j++) {
             let q = Math.random();
             imgs.push(
-                pos = pos.add((new V2(q, 1 - q)).scale(d))
+                new Img({
+                    image: {
+                        location: pos = pos.add((new V2(q, 1 - q)).scale(d)),
+                        width: 1,
+                        height: 1,
+                        uri: "file:/dev/null",
+                        timestamp: 0,
+                    }
+                })
             );
         }
     }
