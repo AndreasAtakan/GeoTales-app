@@ -37,9 +37,10 @@ function make_test_imgs(n: number, r: number, d: number): Img[] {
 
 it("test", () => {
     let imgs = make_test_imgs(10, 6, 0.001);
-    let ot = new OT(bbox_sphere(new V3(0, 0, 0), 6378137), 1, 50);
+    let ot = new OT(bbox_sphere(new V3(0, 0, 0), 6378137), 1, 1500);
     for (let img of imgs) {
         let [lat, lng] = img.pos;
-        ot.insert_coord(lat, lng, null);
+        ot.insert_coord(lat, lng, img);
     }
+    console.log(ot.collect());
 });

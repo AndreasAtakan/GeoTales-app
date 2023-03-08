@@ -132,7 +132,6 @@ function latlng_to_ecef(rad: number, lat: number, lng: number, alt?: number): V3
     lat = radians(lat);
     lng = radians(lng);
     if (!alt) alt = 0;
-    // let rad = 6378137;
     let f = 1/298.257223563;
     let cos_lat = Math.cos(lat);
     let sin_lat = Math.sin(lat);
@@ -216,7 +215,7 @@ class OTNode<T> {
     }
 
     insert(pt: V3, data: T, t: OT<T>) {
-        if (this.pts === null) {
+        if (this.pts === null || this.data === null) {
             let nodes = this.nodes as OTNode<T>[];
             let min_dist = nodes[0].bbox.core.sub(pt).len();
             let close_node = nodes[0];
@@ -231,13 +230,14 @@ class OTNode<T> {
         } else if (this.pts.length >= t.max_pts && this.bbox.width() > t.min_width) {
             let bboxes = this.bbox.explode();
             this.pts.push(pt);
+            this.data.push(data);
             let nodes = this.nodes as OTNode<T>[];
             for (let i = 0; i < 8; i++) {
                 nodes[i] = new OTNode(bboxes[i]);
             }
             let p;
             while (p = this.pts.pop()) {
-                let data = this.data?.pop();
+                let data = this.data.pop();
                 let min_dist = (1 / 0);
                 let min_idx = 0;
                 for (let i = 0; i < 8; i++) {
@@ -251,9 +251,20 @@ class OTNode<T> {
                 nodes[min_idx].data?.push(data as T);
             }
             this.pts = null;
+            this.data = null;
         } else {
             this.pts.push(pt);
-            this.data?.push(data);
+            this.data.push(data);
+        }
+    }
+
+    push_leaves(lvs: OTNode<T>[]) {
+        if (this.pts === null) {
+            for (let node of this.nodes) {
+                node?.push_leaves(lvs);
+            }
+        } else if (this.pts.length > 0) {
+            lvs.push(this);
         }
     }
 }
@@ -273,6 +284,22 @@ export class OT<T> {
 
     insert(pt: V3, data: T) {
         this.root.insert(pt, data, this);
+    }
+
+    collect(): T[][] {
+        let leaves: OTNode<T>[] = [];
+        this.root.push_leaves(leaves);
+        let clusters = [];
+        for (let leaf of leaves) {
+            let pts = [];
+            if (leaf.data) {
+                for (let data of leaf.data) {
+                    pts.push(data);
+                }
+            }
+            clusters.push(pts);
+        }
+        return clusters;
     }
 
     // Project lat, lng onto the sphere contained inside the root bbox, and
