@@ -202,20 +202,22 @@ export function bbox_sphere(ct: V3, r: number): BBox3 {
     return new BBox3(min, max);
 }
 
-class OTNode {
-    nodes: (OTNode | null)[];
+class OTNode<T> {
+    nodes: (OTNode<T> | null)[];
     pts: V3[] | null;
+    data: T[] | null;
     bbox: BBox3;
 
     constructor(bbox: BBox3) {
         this.nodes = [null, null, null, null, null, null, null, null];
         this.pts = [];
+        this.data = [];
         this.bbox = bbox;
     }
 
-    insert(pt: V3, t: OT) {
+    insert(pt: V3, data: T, t: OT<T>) {
         if (this.pts === null) {
-            let nodes = this.nodes as OTNode[];
+            let nodes = this.nodes as OTNode<T>[];
             let min_dist = nodes[0].bbox.core.sub(pt).len();
             let close_node = nodes[0];
             for (let i = 1; i < 8; i++) {
@@ -225,16 +227,17 @@ class OTNode {
                     close_node = nodes[i];
                 }
             }
-            close_node.insert(pt, t);
+            close_node.insert(pt, data, t);
         } else if (this.pts.length >= t.max_pts && this.bbox.width() > t.min_width) {
             let bboxes = this.bbox.explode();
             this.pts.push(pt);
-            let nodes = this.nodes as OTNode[];
+            let nodes = this.nodes as OTNode<T>[];
             for (let i = 0; i < 8; i++) {
                 nodes[i] = new OTNode(bboxes[i]);
             }
             let p;
             while (p = this.pts.pop()) {
+                let data = this.data?.pop();
                 let min_dist = (1 / 0);
                 let min_idx = 0;
                 for (let i = 0; i < 8; i++) {
@@ -245,18 +248,20 @@ class OTNode {
                     }
                 }
                 (nodes[min_idx].pts as V3[]).push(p);
+                nodes[min_idx].data?.push(data as T);
             }
             this.pts = null;
         } else {
             this.pts.push(pt);
+            this.data?.push(data);
         }
     }
 }
 
-export class OT {
+export class OT<T> {
     max_pts: number;
     min_width: number;
-    root: OTNode;
+    root: OTNode<T>;
     radius: number;
 
     constructor(bbox: BBox3, max_pts: number, min_width: number) {
@@ -266,14 +271,14 @@ export class OT {
         this.max_pts = max_pts;
     }
 
-    insert(pt: V3) {
-        this.root.insert(pt, this);
+    insert(pt: V3, data: T) {
+        this.root.insert(pt, data, this);
     }
 
     // Project lat, lng onto the sphere contained inside the root bbox, and
     // insert it
-    insert_coord(lat: number, lng: number) {
-        this.insert(latlng_to_ecef(this.radius, lat, lng));
+    insert_coord(lat: number, lng: number, data: T) {
+        this.insert(latlng_to_ecef(this.radius, lat, lng), data);
     }
 }
 

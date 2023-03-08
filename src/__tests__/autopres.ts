@@ -15,15 +15,19 @@ function make_test_imgs(n: number, r: number, d: number): Img[] {
         // Let the point meander a bit around `k`<`r` times
         for (let j = 0; j < k; j++) {
             let q = Math.random();
+            let [lat, lng] = (pos = pos.add((new V2(q, 1 - q)).scale(d))).to_a();
             imgs.push(
                 new Img({
+                    location: {
+                        latitude: lat,
+                        longitude: lng,
+                    },
                     image: {
-                        location: (pos = pos.add((new V2(q, 1 - q)).scale(d))).to_a(),
+                        uri: "file:/dev/null",
                         width: 1,
                         height: 1,
-                        uri: "file:/dev/null",
-                        timestamp: 0,
-                    }
+                    },
+                    timestamp: 0,
                 })
             );
         }
@@ -33,10 +37,9 @@ function make_test_imgs(n: number, r: number, d: number): Img[] {
 
 it("test", () => {
     let imgs = make_test_imgs(10, 6, 0.001);
-    let ot = new OT(bbox_sphere(new V3(0, 0, 0), 1000000), 1, 1);
+    let ot = new OT(bbox_sphere(new V3(0, 0, 0), 6378137), 1, 50);
     for (let img of imgs) {
         let [lat, lng] = img.pos;
-        console.log(`insert_coord: ${lat}, ${lng}`);
-        ot.insert_coord(lat, lng);
+        ot.insert_coord(lat, lng, null);
     }
 });
