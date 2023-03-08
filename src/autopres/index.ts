@@ -112,6 +112,31 @@ class V3 {
     }
 }
 
+function radians(degs: number): number {
+    return degs * (Math.PI/180);
+}
+
+/** Convert a latitude,longitude pair to ecef coordinates */
+function latlng_to_ecef(lat: number, lng: number, alt?: number): V3 {
+    // For more information, see:
+    //   https://se.mathworks.com/help/aeroblks/llatoecefposition.html
+    //   https://www.oc.nps.edu/oc2902w/coord/llhxyz.htm
+    lat = radians(lat);
+    lng = radians(lng);
+    if (!alt) alt = 0;
+    let rad = 6378137;
+    let f = 1/298.257223563;
+    let cos_lat = Math.cos(lat);
+    let sin_lat = Math.sin(lat);
+    let ff = Math.pow(1-f, 2);
+    let c = 1/Math.sqrt(Math.pow(cos_lat, 2) + ff * Math.pow(sin_lat, 2));
+    let s = c * ff;
+    let x = (rad * c + alt)*cos_lat * Math.cos(lng);
+    let y = (rad * c + alt)*cos_lat * Math.sin(lng);
+    let z = (rad * s + alt)*sin_lat;
+    return new V3(x, y, z);
+}
+
 class BBox3 {
     min: V3;
     max: V3;
@@ -211,8 +236,22 @@ class OTNode {
 class OT {
     max_pts: number = 1;
     min_width: number = 1;
+    root: OTNode;
+    radius: number;
+
+    constructor(bbox: BBox3) {
+        this.root = new OTNode(bbox);
+        this.radius = bbox.radius();
+    }
 
     insert(pt: V3) {
+        this.root.insert(pt, this);
+    }
+
+    // Project lat, lng onto the sphere contained inside the root bbox, and
+    // insert it
+    insert_coord(lat: number, lng: number) {
+        this.insert(latlng_to_ecef(lat, lng));
     }
 }
 
