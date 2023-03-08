@@ -175,7 +175,7 @@ class BBox3 {
     }
 
     radius(): number {
-        return this.max.sub(this.min).len() / 2;
+        return this.width() / 2;
     }
 
     includes(p: V3) {
