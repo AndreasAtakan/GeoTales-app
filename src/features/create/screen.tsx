@@ -3,16 +3,7 @@ import { FC, useState } from "react";
 import { Alert, PermissionsAndroid, Platform, useWindowDimensions } from "react-native";
 import { Plus } from "@tamagui/lucide-icons";
 import {
-	H3,
-	Text,
-	YGroup,
-	YStack,
 	Button,
-	ScrollView,
-	XStack,
-	Spinner,
-	Sheet,
-	Card,
 	Image
 } from "tamagui";
 
@@ -49,17 +40,19 @@ export const CreateScreen: FC< NativeStackScreenProps<StackNavigatorParams, "cre
 	const { height, width } = useWindowDimensions();
 
 	const [ images, setImages ] = useState<any[] | null>(null);
+	const [ trips, setTrips ] = useState<any[] | null>(null);
 
 	const [ loading, setLoading ] = useState<boolean>(false);
-	const [ journeys, setJourneys ] = useState<any[] | null>(null);
+	const [ journeys, setJourneys ] = useState<boolean>(false);
 	const [ journey, setJourney ] = useState<any[] | null>(null);
 	const [ select, setSelect ] = useState<boolean>(false);
 
 	const readImgs = async () => {
 		if(Platform.OS === "android" && !(await hasAndroidPermission())) {
-			navigation.popToTop();
-			return;
+			navigation.popToTop(); return;
 		}
+
+		if(!!images || !!trips) { setJourneys(true); return; }
 
 		setLoading(true);
 
@@ -78,11 +71,11 @@ export const CreateScreen: FC< NativeStackScreenProps<StackNavigatorParams, "cre
 
 			// TODO: Call algo that turns image list into suggested journeys
 			// imgs = algo(imgs);
+			let l = []; for(let i = 0; i < 5; i++) { l.push(imgs); }
+			setTrips(l);
 
 			setLoading(false);
-
-			let l = []; for(let i = 0; i < 5; i++) { l.push(imgs); }
-			setJourneys(l);
+			setJourneys(true);
 		}
 		catch(err) {
 			setLoading(false);
@@ -91,6 +84,8 @@ export const CreateScreen: FC< NativeStackScreenProps<StackNavigatorParams, "cre
 	};
 
 	let createMap = async (imgs: any[]) => {
+		if(!imgs) { return; }
+
 		setLoading(true);
 
 		try {
@@ -141,33 +136,41 @@ export const CreateScreen: FC< NativeStackScreenProps<StackNavigatorParams, "cre
 			<JourneysModal
 				navigation={navigation}
 				journeys={journeys}
+				trips={trips}
+				cancel={() => setJourneys(false)}
 				openJourneySelect={(index: number) => {
-					if(!journeys) { return }
-					setJourneys(null);
-					setJourney( journeys[index] );
+					if(!trips) { return }
+					setJourneys(false);
+					setJourney( trips[index] );
 				}}
 				openManualSelect={() => {
-					setJourneys(null);
+					setJourneys(false);
 					setSelect(true);
 				}}
 			/>
 			<JourneyModal
 				navigation={navigation}
 				journey={journey}
-				cancel={() => setJourney(null)}
+				back={() => {
+					setJourney(null);
+					setJourneys(true);
+				}}
 				create={(l) => {
 					setJourney(null);
-					createMap(l || images || []);
+					createMap(l);
 				}}
 			/>
 			<SelectModal
 				navigation={navigation}
 				open={select}
 				images={images}
-				cancel={() => setSelect(false)}
+				back={() => {
+					setSelect(false);
+					setJourneys(true);
+				}}
 				create={(l) => {
 					setSelect(false);
-					createMap(l || images || []);
+					createMap(l);
 				}}
 			/>
 		</MainStack>

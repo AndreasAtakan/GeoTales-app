@@ -2,12 +2,9 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { FC, useState, useEffect } from "react";
 import { useWindowDimensions, FlatList } from "react-native";
 import {
-	H2,
+	H3,
 	Card,
 	Text,
-	Separator,
-	YGroup,
-	YStack,
 	Spinner,
 	Image
 } from "tamagui";
@@ -21,12 +18,13 @@ import getdate from "../../utils/getdate";
 import { Fab } from "./fab";
 
 export const MapsScreen: FC< NativeStackScreenProps<StackNavigatorParams, "maps"> > = ({ navigation }) => {
-	const goto = (id: string) => navigation.navigate("view", { id });
-
 	const { height, width } = useWindowDimensions();
+	const w = width / 2 - 12;
 
 	const [ loading, setLoading ] = useState<boolean>(true);
 	const [ list, setList ] = useState<any>(null);
+
+	const goto = (id: string) => navigation.navigate("view", { id });
 
 	/*AsyncStorage.clear()
 	.then(() => console.log("Cleared"))
@@ -57,6 +55,7 @@ export const MapsScreen: FC< NativeStackScreenProps<StackNavigatorParams, "maps"
 			ai="center"
 		>
 			<FlatList
+				contentContainerStyle={{ paddingBottom: 70 }}
 				alwaysBounceVertical={false}
 				pinchGestureEnabled={false}
 				ListEmptyComponent={
@@ -65,19 +64,20 @@ export const MapsScreen: FC< NativeStackScreenProps<StackNavigatorParams, "maps"
 					:
 					( <Text color="#999" marginTop={50}>No maps</Text> )
 				}
+				numColumns={2}
 				data={list}
 				keyExtractor={(item, index) => index.toString()}
-				renderItem={({ item }) => {
-					let f = item.imgs[0], l = item.imgs[ item.imgs.length - 1 ];
-					const w = Math.min( width - 12, 350 );
+				renderItem={({ item, index }) => {
+					let f = item.imgs[0], l = item.imgs[ item.imgs.length - 1 ],
+						h = Math.min( w , 350);
 
 					return (
 						<Card
 							theme="light"
-							width={w - 20}
-							height={w / f.ratio}
+							width={w}
+							height={h}
 							elevate={true}
-							marginVertical={15}
+							marginVertical={10}
 							marginHorizontal={6}
 							animation="quick"
 							pressStyle={{ opacity: 0.8 }}
@@ -87,18 +87,19 @@ export const MapsScreen: FC< NativeStackScreenProps<StackNavigatorParams, "maps"
 								ai="center"
 								marginTop={30}
 							>
-								<H2 color="#e6e6e6">
+								<H3 color="#e6e6e6">
 									{`${getdate(f.timestamp)} – ${getdate(l.timestamp)}`}
-								</H2>
+								</H3>
 							</Card.Header>
 							<Card.Background>
 								<Image
+									br={4}
 									width={w}
-									height={w / f.ratio}
-									resizeMode="contain"
+									height={h}
+									resizeMode="cover"
 									als="center"
 									src={f.uri}
-									blurRadius={10}
+									blurRadius={6}
 								/>
 							</Card.Background>
 						</Card>

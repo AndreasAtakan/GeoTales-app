@@ -99,6 +99,7 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 				<MapboxGL.RasterDemSource
 					id="terrain"
 					url="mapbox://mapbox.mapbox-terrain-dem-v1"
+					minZoomLevel={7}
 					maxZoomLevel={14}
 				>
 					<MapboxGL.Atmosphere

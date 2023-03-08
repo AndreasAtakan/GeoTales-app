@@ -8,8 +8,4 @@ type StackNavigatorParams = {
 		id: string;
 	};
 	signin: undefined;
-
-	"user-detail": {
-		id: string;
-	};
 };
