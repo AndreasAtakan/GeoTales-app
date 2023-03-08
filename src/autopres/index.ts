@@ -14,7 +14,7 @@ export class Img {
 
     constructor(img: ImageAsset, pos_zero?: number[]) {
         this.uri = img.image.uri;
-        this.timestamp = img.timestamp; // NOTE: is already in epoch-time
+        this.timestamp = img.timestamp;
         this.ratio = img.image.width / img.image.height;
 
         let l = img.location;
