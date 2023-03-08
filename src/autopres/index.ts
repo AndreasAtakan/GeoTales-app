@@ -117,14 +117,14 @@ function radians(degs: number): number {
 }
 
 /** Convert a latitude,longitude pair to ecef coordinates */
-function latlng_to_ecef(lat: number, lng: number, alt?: number): V3 {
+function latlng_to_ecef(rad: number, lat: number, lng: number, alt?: number): V3 {
     // For more information, see:
     //   https://se.mathworks.com/help/aeroblks/llatoecefposition.html
     //   https://www.oc.nps.edu/oc2902w/coord/llhxyz.htm
     lat = radians(lat);
     lng = radians(lng);
     if (!alt) alt = 0;
-    let rad = 6378137;
+    // let rad = 6378137;
     let f = 1/298.257223563;
     let cos_lat = Math.cos(lat);
     let sin_lat = Math.sin(lat);
@@ -251,7 +251,7 @@ class OT {
     // Project lat, lng onto the sphere contained inside the root bbox, and
     // insert it
     insert_coord(lat: number, lng: number) {
-        this.insert(latlng_to_ecef(lat, lng));
+        this.insert(latlng_to_ecef(this.radius, lat, lng));
     }
 }
 
