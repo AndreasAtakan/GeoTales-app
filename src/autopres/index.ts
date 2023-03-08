@@ -77,10 +77,14 @@ export class V2 {
     len(): number {
         return Math.sqrt(this.x * this.x + this.y * this.y);
     }
+
+    to_a(): number[] {
+        return [this.x, this.y];
+    }
 }
 
 
-class V3 {
+export class V3 {
     x: number;
     y: number;
     z: number;
@@ -97,6 +101,10 @@ class V3 {
 
     add(o: V3): V3 {
         return new V3(this.x + o.x, this.y + o.y, this.z + o.z);
+    }
+
+    to_a(): number[] {
+        return [this.x, this.y, this.z];
     }
 
     sub(o: V3): V3 {
@@ -137,7 +145,7 @@ function latlng_to_ecef(rad: number, lat: number, lng: number, alt?: number): V3
     return new V3(x, y, z);
 }
 
-class BBox3 {
+export class BBox3 {
     min: V3;
     max: V3;
     core: V3;
@@ -187,6 +195,13 @@ class BBox3 {
     }
 }
 
+export function bbox_sphere(ct: V3, r: number): BBox3 {
+    let rv = new V3(r, r, r);
+    let min = ct.sub(rv);
+    let max = ct.add(rv);
+    return new BBox3(min, max);
+}
+
 class OTNode {
     nodes: (OTNode | null)[];
     pts: V3[] | null;
@@ -199,32 +214,37 @@ class OTNode {
     }
 
     insert(pt: V3, t: OT) {
-        if (!this.pts) {
+        if (this.pts === null) {
             let nodes = this.nodes as OTNode[];
-            for (let node of nodes) {
-                node.insert(pt, t);
+            let min_dist = nodes[0].bbox.core.sub(pt).len();
+            let close_node = nodes[0];
+            for (let i = 1; i < 8; i++) {
+                let dist = nodes[i].bbox.core.sub(pt).len();
+                if (dist < min_dist) {
+                    min_dist = dist;
+                    close_node = nodes[i];
+                }
             }
-        } else if (this.pts.length >= t.max_pts) {
+            close_node.insert(pt, t);
+        } else if (this.pts.length >= t.max_pts && this.bbox.width() > t.min_width) {
             let bboxes = this.bbox.explode();
             this.pts.push(pt);
-            for (let i = 0; i < 8; i++) {
-                this.nodes[i] = new OTNode(bboxes[i]);
-            }
             let nodes = this.nodes as OTNode[];
-            {
-                let pt;
-                while (pt = this.pts.pop()) {
-                    let min_dist = (1 / 0);
-                    let min_idx = 0;
-                    for (let i = 0; i < 8; i++) {
-                        let dist = bboxes[i].core.sub(pt).len();
-                        if (dist < min_dist) {
-                            min_dist = dist;
-                            min_idx = i;
-                        }
+            for (let i = 0; i < 8; i++) {
+                nodes[i] = new OTNode(bboxes[i]);
+            }
+            let p;
+            while (p = this.pts.pop()) {
+                let min_dist = (1 / 0);
+                let min_idx = 0;
+                for (let i = 0; i < 8; i++) {
+                    let dist = bboxes[i].core.sub(p).len();
+                    if (dist < min_dist) {
+                        min_dist = dist;
+                        min_idx = i;
                     }
-                    (nodes[min_idx].pts as V3[]).push(pt);
                 }
+                (nodes[min_idx].pts as V3[]).push(p);
             }
             this.pts = null;
         } else {
@@ -233,15 +253,17 @@ class OTNode {
     }
 }
 
-class OT {
-    max_pts: number = 1;
-    min_width: number = 1;
+export class OT {
+    max_pts: number;
+    min_width: number;
     root: OTNode;
     radius: number;
 
-    constructor(bbox: BBox3) {
+    constructor(bbox: BBox3, max_pts: number, min_width: number) {
         this.root = new OTNode(bbox);
         this.radius = bbox.radius();
+        this.min_width = min_width;
+        this.max_pts = max_pts;
     }
 
     insert(pt: V3) {
