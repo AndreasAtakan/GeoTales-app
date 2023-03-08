@@ -1,4 +1,4 @@
-import { Pres, Img, V2, bbox_sphere, V3, OT } from '../autopres';
+import { Pres, V2, bbox_sphere, V3, OT, Img } from '../autopres';
 
 function random_coords(): V2 {
     return new V2(Math.random()*180 - 90, Math.random()*180 - 90);
@@ -37,10 +37,13 @@ function make_test_imgs(n: number, r: number, d: number): Img[] {
 
 it("test", () => {
     let imgs = make_test_imgs(10, 6, 0.001);
-    let ot = new OT(bbox_sphere(new V3(0, 0, 0), 6378137), 1, 1500);
+    let ot = new OT<Img>(bbox_sphere(new V3(0, 0, 0), 6378137), 1, 1500);
     for (let img of imgs) {
         let [lat, lng] = img.pos;
         ot.insert_coord(lat, lng, img);
     }
-    console.log(ot.collect());
+    for (let cluster of ot.collect()) {
+        let pos_arr = cluster.map(x => x.pos);
+        console.log(pos_arr);
+    }
 });
