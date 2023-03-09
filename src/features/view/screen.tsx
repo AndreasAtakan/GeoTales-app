@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { FC, useRef, useEffect, useState } from "react";
+import { FC, useRef, useEffect, useState, useCallback } from "react";
 import { StyleSheet, useWindowDimensions, FlatList } from "react-native";
 //import { TouchableOpacity } from "react-native-gesture-handler";
 import {
@@ -25,7 +25,8 @@ const padding = { paddingBottom: IMG_HEIGHT, paddingTop: 0, paddingLeft: 0, padd
 export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"> > = ({ route, navigation }) => {
 	const { id } = route.params;
 	const MAP = useRef<MapboxGL.MapView>(null),
-		  CAMERA = useRef<MapboxGL.Camera>(null);
+		  CAMERA = useRef<MapboxGL.Camera>(null),
+		  presRef = useRef(null);
 
 	const { height, width } = useWindowDimensions();
 	const styles = StyleSheet.create({
@@ -36,27 +37,31 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 	const [ images, setImages ] = useState<any[] | null>(null);
 	const [ imgHeight, setImgHeight ] = useState<number>(IMG_HEIGHT);
 
-	let scrollEnd = async (ev: any) => {
-		//console.log( ev.target._internalFiberInstanceHandleDEV.child );
-		if(!pres) { return; }
-		let id = "0";
+	presRef.current = pres;
 
-		let center = null;
-		for(let c of pres.clusters) {
+	const scrollEnd = useCallback(({ changed, viewableItems }) => {
+		let p = presRef.current;
+		if(!p) { return; }
+
+		let id = changed[0].item.id,
+			center = null;
+		for(let c of p.clusters) {
 			if( c.imgs.indexOf(id) > -1 ) {
 				center = c.center; break;
 			}
 		}
+		if(!center) { return; }
 
 		CAMERA.current?.setCamera({
-			centerCoordinate: center || [8, 50],
-			zoomLevel: 7,
+			centerCoordinate: center,
+			zoomLevel: 16,
 			heading: 0,
 			pitch: 0,
-			animationDuration: 4500,
+			animationMode: "flyTo",
+			animationDuration: 10000,
 			padding
 		});
-	};
+	}, []);
 
 	useEffect(() => {
 		/*if(!MAP.current || !CAMERA.current) { return; }
@@ -92,14 +97,14 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 					ref={CAMERA}
 					centerCoordinate={[8, 50]}
 					zoomLevel={3}
-					padding={padding}
-					animationMode="flyTo"
 					maxZoomLevel={22}
+					//animationMode="flyTo"
+					padding={padding}
 				/>
 				<MapboxGL.RasterDemSource
 					id="terrain"
 					url="mapbox://mapbox.mapbox-terrain-dem-v1"
-					minZoomLevel={7}
+					minZoomLevel={10}
 					maxZoomLevel={14}
 				>
 					<MapboxGL.Atmosphere
@@ -143,13 +148,13 @@ export const ViewScreen: FC< NativeStackScreenProps<StackNavigatorParams, "view"
 					snapToInterval={width}
 					snapToAlignment="center"
 					contentContainerStyle={{ paddingHorizontal: 0 }}
-					contentInset={{
-						top: 0, bottom: 0, left: 0, right: 0
+					contentInset={{ top: 0, bottom: 0, left: 0, right: 0 }}
+					getItemLayout={(item, index) => ({ length: width, offset: width * index, index })}
+					onViewableItemsChanged={scrollEnd}
+					viewabilityConfig={{
+						minimumViewTime: 500,
+						itemVisiblePercentThreshold: 50
 					}}
-					getItemLayout={(item, index) => ({
-						length: width, offset: width * index, index
-					})}
-					onScrollEndDrag={scrollEnd}
 					data={images}
 					keyExtractor={item => item.id}
 					renderItem={({item}) => (
