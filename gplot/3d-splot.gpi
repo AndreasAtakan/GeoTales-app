@@ -1,0 +1,26 @@
+#!/usr/bin/gnuplot --persist
+
+#set terminal pdfcairo enhanced size 5,3 background rgb 'black' font "Helvetica,15"
+set terminal wxt enhanced size 5,3 background rgb 'black' font "Helvetica,15"
+set datafile separator ','
+set termopt enhanced
+set tics font "Helvetica,12"
+set title "Python Backtracking Regex" tc rgb 'white'
+set xlabel 'n' tc rgb 'white'
+set ylabel 'time' tc rgb 'white'
+set border lc rgb 'white'
+set key tc rgb 'white'
+set key outside
+set samples 10000
+
+#outfile = "3d-splot.pdf"
+infile = ARG1
+sz = 2
+set linetype 1 lc rgb 'purple' lw sz
+set linetype 2 lc rgb 'yellow' lw sz
+set linetype 3 lc rgb 'cyan' lw sz
+#set output outfile
+set style line 100 lt 1 lc rgb "grey" lw 0.5 # linestyle for the grid
+set grid ls 100 # enable grid with specific linestyle
+
+splot infile using 1:2:3 with points title 'samples' lc 3 pointtype 4 pointsize 0.5

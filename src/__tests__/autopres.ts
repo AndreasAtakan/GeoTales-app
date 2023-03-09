@@ -1,4 +1,5 @@
 import { Pres, V2, bbox_sphere, V3, OT, Img } from '../autopres';
+const fs = require('fs');
 
 function random_coords(): V2 {
     return new V2(Math.random()*180 - 90, Math.random()*180 - 90);
@@ -36,8 +37,8 @@ function make_test_imgs(n: number, r: number, d: number): Img[] {
 }
 
 it("test", () => {
-    let imgs = make_test_imgs(10, 6, 0.001);
-    let ot = new OT<Img>(bbox_sphere(new V3(0, 0, 0), 6378137), 1, 400);
+    let imgs = make_test_imgs(10, 6, 2.1);
+    let ot = new OT<Img>(bbox_sphere(new V3(0, 0, 0), 6378137), 1, 0.0001);
     for (let img of imgs) {
         let [lat, lng] = img.pos;
         ot.insert_coord(lat, lng, img);
@@ -46,4 +47,5 @@ it("test", () => {
         let pos_arr = cluster.map(x => x.pos);
         console.log(pos_arr);
     }
+    fs.writeFile('test-out/box-corners.csv', ot.collect_box_corners_csv(), () => {});
 });
