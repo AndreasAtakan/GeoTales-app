@@ -75,7 +75,7 @@ export const CreateScreen: FC< NativeStackScreenProps<StackNavigatorParams, "cre
 			setTrips(l);
 
 			setLoading(false);
-			setJourneys(true);
+			setSelect(true); //setJourneys(true);
 		}
 		catch(err) {
 			setLoading(false);
@@ -166,7 +166,7 @@ export const CreateScreen: FC< NativeStackScreenProps<StackNavigatorParams, "cre
 				images={images}
 				back={() => {
 					setSelect(false);
-					setJourneys(true);
+					//setJourneys(true);
 				}}
 				create={(l) => {
 					setSelect(false);
