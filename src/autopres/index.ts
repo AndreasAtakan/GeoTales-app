@@ -156,21 +156,18 @@ export class BBox3 {
     }
 
     explode(): BBox3[] {
-        // Unit vectors to move boxes along
-        let xhat = new V3((this.max.x - this.min.x) / 2, 0, 0);
-        let yhat = new V3(0, (this.max.y - this.min.y) / 2, 0);
-        let zhat = new V3(0, 0, (this.max.z - this.min.z) / 2);
-
-        let ba = new BBox3(this.min, this.core);
-        let bb = ba.add(yhat);
-        let bc = bb.add(xhat);
-        let bd = ba.add(xhat);
-        let be = ba.add(zhat);
-        let bf = be.add(yhat);
-        let bg = bf.add(xhat);
-        let bh = be.add(xhat);
-
-        return [ba, bb, bc, bd, be, bf, bg, bh];
+        let d = this.width() / 2;
+        let min = new BBox3(this.min, this.core);
+        return [
+            min,
+            min.add(new V3(0, 0, d)),
+            min.add(new V3(0, d, 0)),
+            min.add(new V3(0, d, d)),
+            min.add(new V3(d, 0, 0)),
+            min.add(new V3(d, 0, d)),
+            min.add(new V3(d, d, 0)),
+            min.add(new V3(d, d, d)),
+        ]
     }
 
     add(d: V3): BBox3 {
@@ -201,7 +198,10 @@ export function bbox_sphere(ct: V3, r: number): BBox3 {
     return new BBox3(min, max);
 }
 
+var GLOBAL_OT_NODE_ID_COUNTER = 0;
+
 class OTNode<T> {
+    id: number;
     nodes: (OTNode<T> | null)[];
     pts: V3[] | null;
     data: T[] | null;
@@ -212,6 +212,7 @@ class OTNode<T> {
         this.pts = [];
         this.data = [];
         this.bbox = bbox;
+        this.id = ++GLOBAL_OT_NODE_ID_COUNTER;
     }
 
     insert(pt: V3, data: T, t: OT<T>) {
@@ -267,6 +268,11 @@ class OTNode<T> {
             lvs.push(this);
         }
     }
+
+    push_boxes(boxes: BBox3[]) {
+        boxes.push(this.bbox);
+        this.nodes.forEach(p => p?.push_boxes(boxes));
+    }
 }
 
 export class OT<T> {
@@ -306,6 +312,44 @@ export class OT<T> {
     // insert it
     insert_coord(lat: number, lng: number, data: T) {
         this.insert(latlng_to_ecef(this.radius, lat, lng), data);
+    }
+
+    collect_box_cores_csv(): string {
+        let bboxes: BBox3[] = [];
+        this.root.push_boxes(bboxes);
+        let lines = [];
+        for (let bbox of bboxes) {
+            let min = bbox.min;
+            let max = bbox.max;
+            let p = bbox.core;
+            lines.push(`${p.x},${p.y},${p.z}`);
+        }
+        return lines.join("\n");
+    }
+
+    collect_box_corners_csv(): string {
+        let bboxes: BBox3[] = [];
+        this.root.push_boxes(bboxes);
+        let lines = [];
+        for (let bbox of bboxes) {
+            let d = bbox.width();
+            let min = bbox.min;
+            let max = bbox.max;
+            let corners = [
+                min,
+                min.add(new V3(0, 0, d)),
+                min.add(new V3(0, d, 0)),
+                min.add(new V3(0, d, d)),
+                min.add(new V3(d, 0, 0)),
+                min.add(new V3(d, 0, d)),
+                min.add(new V3(d, d, 0)),
+                max,
+            ];
+            for (let p of corners) {
+                lines.push(`${p.x},${p.y},${p.z}`);
+            }
+        }
+        return lines.join("\n");
     }
 }
 
