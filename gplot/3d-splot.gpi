@@ -1,13 +1,15 @@
 #!/usr/bin/gnuplot --persist
 
 infile = ARG1
-set terminal wxt enhanced size 5,3 background rgb 'black' font "Helvetica,15"
+#set terminal wxt enhanced size 5,3 background rgb 'black' font "Helvetica,15"
+set terminal gif animate delay 5 loop 0 optimize size 800,800 background rgb 'black' font "Helvetica,15"
 set datafile separator ','
 set termopt enhanced
 set tics font "Helvetica,12"
 set title infile tc rgb 'white'
-set xlabel 'n' tc rgb 'white'
-set ylabel 'time' tc rgb 'white'
+set xlabel 'x' tc rgb 'white'
+set ylabel 'y' tc rgb 'white'
+set zlabel 'z' tc rgb 'white'
 set border lc rgb 'white'
 set key tc rgb 'white'
 set key outside
@@ -20,4 +22,15 @@ set linetype 3 lc rgb 'cyan' lw sz
 set style line 100 lt 1 lc rgb "grey" lw 0.5 # linestyle for the grid
 set grid ls 100 # enable grid with specific linestyle
 
-splot infile using 1:2:3 with points title 'samples' lc 3 pointtype 4 pointsize 0.5
+
+set output "out.gif"
+# unset surface
+# set pm3d at s
+
+n = 200
+do for [i=1:n] {
+    set view 90, i*360/n#, 1, 1
+    splot infile using 1:2:3 with points notitle lc 3 pointtype 4 pointsize 0.5
+}
+
+set output
