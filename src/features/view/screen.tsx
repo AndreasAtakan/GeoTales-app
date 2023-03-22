@@ -12,8 +12,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MapboxGL, { Terrain as MapboxGLTerrain } from "@rnmapbox/maps";
 
-import length from '@turf/length';
-import { lineString } from '@turf/helpers';
+import { length, lineString } from "@turf/turf";
 
 import moment from "moment";
 

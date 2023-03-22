@@ -373,6 +373,24 @@ function img_bbox(img: Img): BBox {
 function clusterize(imgs: Img[], d: number): ImgCluster[] {
     let clusters: ImgCluster[] = [];
 
+    /*let ot = new OT<Img>(bbox_sphere(new V3(0, 0, 0), 6378137), 1, d);
+
+    for(let img of imgs) {
+        let [lat, lng] = img.pos;
+        ot.insert_coord(lat, lng, img);
+    }
+
+    // NOTE: ot.collect() needs to return a type that is compatible with ImgCluster[], not just Img[][]
+    //       Definition of ImgCluster:
+    //       interface ImgCluster {
+    //          center: number[],
+    //          bbox: BBox,
+    //          imgs: string[]
+    //       };
+    clusters = ot.collect();
+
+    return clusters;*/
+
     let sum = imgs[0].pos;
     let ct = imgs[0].pos;
     let mareas = [imgs[0].id];
