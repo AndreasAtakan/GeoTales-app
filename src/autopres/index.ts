@@ -319,8 +319,6 @@ export class OT<T> {
         this.root.push_boxes(bboxes);
         let lines = [];
         for (let bbox of bboxes) {
-            let min = bbox.min;
-            let max = bbox.max;
             let p = bbox.core;
             lines.push(`${p.x},${p.y},${p.z}`);
         }
