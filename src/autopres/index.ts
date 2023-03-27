@@ -259,19 +259,22 @@ class OTNode<T> {
         }
     }
 
-    push_leaves(lvs: OTNode<T>[]) {
-        if (this.pts === null) {
-            for (let node of this.nodes) {
-                node?.push_leaves(lvs);
-            }
-        } else if (this.pts.length > 0) {
-            lvs.push(this);
-        }
-    }
-
     push_boxes(boxes: BBox3[]) {
         boxes.push(this.bbox);
         this.nodes.forEach(p => p?.push_boxes(boxes));
+    }
+
+    visit_all(f: (node: OTNode<T>) => void) {
+        f(this);
+        this.nodes.forEach(n => n?.visit_all(f))
+    }
+
+    visit(f: (node: OTNode<T>) => void) {
+        if (this.pts === null) {
+            this.nodes.forEach(n => n?.visit(f))
+        } else {
+            f(this);
+        }
     }
 }
 
@@ -292,9 +295,13 @@ export class OT<T> {
         this.root.insert(pt, data, this);
     }
 
+    visit(f: (node: OTNode<T>) => void) {
+        this.root.visit(f);
+    }
+
     collect(): T[][] {
         let leaves: OTNode<T>[] = [];
-        this.root.push_leaves(leaves);
+        this.root.visit(node => leaves.push(node));
         let clusters = [];
         for (let leaf of leaves) {
             let pts = [];
@@ -348,6 +355,33 @@ export class OT<T> {
             }
         }
         return lines.join("\n");
+    }
+}
+
+class ImgClassifier {
+    ot: OT<Img>;
+    homes: { [_: number]: true };
+
+    constructor(imgs: Img[]) {
+        this.ot = new OT<Img>(bbox_sphere(new V3(0, 0, 0), 6378137), 1, 1);
+        for (let img of imgs) {
+            let [lat, lng] = img.pos;
+            this.ot.insert_coord(lat, lng, img);
+        }
+        this.homes = {};
+
+        let home_threshold = 100;
+        this.ot.visit(node => {
+            let min_ts = 1/0;
+            let max_ts = 0;
+            for (let img of node.data as Img[]) {
+                if (img.timestamp > max_ts) max_ts = img.timestamp;
+                if (img.timestamp < min_ts) min_ts = img.timestamp;
+            }
+            if (max_ts - min_ts > home_threshold) {
+                this.homes[node.id] = true;
+            }
+        });
     }
 }
 

@@ -28,7 +28,7 @@ function make_test_imgs(n: number, r: number, d: number): Img[] {
                         width: 1,
                         height: 1,
                     },
-                    timestamp: 0,
+                    timestamp: i*j,
                 })
             );
         }
@@ -38,11 +38,13 @@ function make_test_imgs(n: number, r: number, d: number): Img[] {
 
 it("test", () => {
     let imgs = make_test_imgs(200, 12, 0.1);
+    console.log(`testing insertion of ${imgs.length} images`);
     let ot = new OT<Img>(bbox_sphere(new V3(0, 0, 0), 6378137), 1, 1);
     for (let img of imgs) {
         let [lat, lng] = img.pos;
         ot.insert_coord(lat, lng, img);
     }
+    console.log("done.");
     for (let cluster of ot.collect()) {
         let pos_arr = cluster.map(x => x.pos);
         console.log(pos_arr);
