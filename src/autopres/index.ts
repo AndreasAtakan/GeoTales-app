@@ -118,6 +118,16 @@ export class V3 {
     len(): number {
         return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
     }
+
+    clone(): V3 {
+        return new V3(this.x, this.y, this.z);
+    }
+
+    to_degs(rad: number): number[] {
+        var lat = 90 - (Math.acos(this.y / rad)) * 180 / Math.PI;
+        var lng = ((270 + (Math.atan2(this.x, this.z)) * 180 / Math.PI) % 360) - 180;
+        return [lat, lng]
+    }
 }
 
 function radians(degs: number): number {
@@ -269,6 +279,17 @@ class OTNode<T> {
         this.nodes.forEach(n => n?.visit_all(f))
     }
 
+    visit_near(node: OTNode<T>, th: number, f: (node: OTNode<T>) => void) {
+        if (this.pts === null) {
+            this.nodes.forEach(n => {
+                if ((n as OTNode<T>).bbox.core.sub(node.bbox.core).len() < th)
+                    n?.visit_near(f, node, th)
+            })
+        } else {
+            f(this);
+        }
+    }
+
     visit(f: (node: OTNode<T>) => void) {
         if (this.pts === null) {
             this.nodes.forEach(n => n?.visit(f))
@@ -297,6 +318,10 @@ export class OT<T> {
 
     visit(f: (node: OTNode<T>) => void) {
         this.root.visit(f);
+    }
+
+    visit_near(node: OTNode<T>, th: number, f: (node: OTNode<T>) => void) {
+        this.root.visit_near(node, th, f);
     }
 
     collect(): T[][] {
@@ -358,25 +383,49 @@ export class OT<T> {
     }
 }
 
+interface ClassifierCfg {
+    max_dist: number;
+    home_time_threshold: number;
+    home_distance_threshold: number;
+    earth_rad: number;
+    ot_node_min_width: number;
+    ot_node_max_pts: number;
+}
+
 class ImgClassifier {
     ot: OT<Img>;
     homes: { [_: number]: true };
     img_to_node: { [_: string]: OTNode<Img> };
+    clusters: ImgCluster[];
+    cfg: ClassifierCfg;
 
-    constructor(imgs: Img[]) {
-        this.ot = new OT<Img>(bbox_sphere(new V3(0, 0, 0), 6378137), 1, 1);
+    constructor(imgs: Img[], cfg?: ClassifierCfg) {
+        this.cfg = cfg || {
+            max_dist: 10000,
+            earth_rad: 6378137,
+            home_distance_threshold: 10000,
+            home_time_threshold: 3600 * 24 * 64,
+            ot_node_min_width: 1,
+            ot_node_max_pts: 1,
+        };
+
+        let rad = this.cfg.earth_rad;
+        this.ot = new OT<Img>(bbox_sphere(new V3(0, 0, 0), rad),
+                              this.cfg.ot_node_max_pts,
+                              this.cfg.ot_node_min_width);
         for (let img of imgs) {
             let [lat, lng] = img.pos;
             this.ot.insert_coord(lat, lng, img);
         }
         this.homes = {};
         this.img_to_node = {};
+        this.clusters = [];
 
         if (imgs.length == 0) { return; }
 
-        let home_time_threshold = 3600 * 24 * 64;
+        let home_time_threshold = this.cfg.home_time_threshold;
         this.ot.visit(node => {
-            let min_ts = 1/0;
+            let min_ts = 1 / 0;
             let max_ts = 0;
             for (let img of node.data as Img[]) {
                 this.img_to_node[img.id] = node;
@@ -385,11 +434,11 @@ class ImgClassifier {
             }
             if (max_ts - min_ts > home_time_threshold) {
                 this.homes[node.id] = true;
+                this.ot.visit_near(node, this.cfg.home_distance_threshold, (n) => {
+                    this.homes[n.id] = true;
+                });
             }
         });
-        // TODO: All nodes closer than `home_dist_threshold_km` to home-nodes
-        // also become home-nodes
-        let home_dist_threshold_km = 100;
 
         imgs.sort((u, v) => v.timestamp - u.timestamp);
 
@@ -402,12 +451,43 @@ class ImgClassifier {
             let img = imgs[i];
             if (this.is_split(pimg, img)) {
                 // Skip ahead to first non-ignored node
-                for (img = imgs[i]; img && !this.is_ignored(img); i++);
+                for (; (img = imgs[i]) && this.is_ignored(img); i++);
                 if (img) clusters.push(cluster = [img]);
             } else if (!this.is_ignored(img)) {
                 cluster.push(img);
             }
         }
+
+        this.clusters = clusters.map(imgs => {
+            let p = imgs[0].pos;
+            let min = latlng_to_ecef(rad, p[0], p[1]);
+            let max = min.clone();
+            let avg = min.clone();
+            let t = 1;
+            for (let i = 1; i < imgs.length; i++) {
+                let pi = imgs[i].pos;
+                let p = latlng_to_ecef(rad, pi[0], pi[1]);
+                t++;
+                avg.x = (p.x - avg.x) / t;
+                avg.y = (p.y - avg.y) / t;
+                avg.z = (p.z - avg.z) / t;
+                if (p.x < min.x) min.x = p.x;
+                if (p.y < min.y) min.y = p.y;
+                if (p.z < min.z) min.z = p.z;
+                if (p.x > max.x) max.x = p.x;
+                if (p.y > max.y) max.y = p.y;
+                if (p.z > max.z) max.z = p.z;
+            }
+            let bbox: [number[], number[]] = [min.to_degs(rad), max.to_degs(rad)];
+            let scale = (rad**2) / (avg.x**2 + avg.y**2 + avg.z**2);
+            let center = avg.scale(scale).to_degs(rad);
+
+            return {
+                center,
+                bbox,
+                imgs: imgs.map(img => img.uri),
+            }
+        })
     }
 
     is_split(pimg: Img, nimg: Img): boolean {
@@ -417,7 +497,8 @@ class ImgClassifier {
         // here we decide whether or not the transition from image `pimg` to
         // `nimg` warrants a split in clustering.
 
-        return this.homes[nnode.id];
+        return this.homes[nnode.id] ||
+            distance(pimg.pos, nimg.pos) > this.cfg.max_dist;
     }
 
     is_ignored(img: Img): boolean {
@@ -440,29 +521,16 @@ function img_bbox(img: Img): BBox {
     return [nw, se];
 }
 
+export function trip_finder(imgs: Img[], cfg?: ClassifierCfg): ImgCluster[] {
+    let clz = new ImgClassifier(imgs, cfg);
+    return clz.clusters;
+}
+
 /**
  * Create clusters from a set of `imgs`.
  */
 function clusterize(imgs: Img[], d: number): ImgCluster[] {
     let clusters: ImgCluster[] = [];
-
-    /*let ot = new OT<Img>(bbox_sphere(new V3(0, 0, 0), 6378137), 1, d);
-
-    for(let img of imgs) {
-        let [lat, lng] = img.pos;
-        ot.insert_coord(lat, lng, img);
-    }
-
-    // NOTE: ot.collect() needs to return a type that is compatible with ImgCluster[], not just Img[][]
-    //       Definition of ImgCluster:
-    //       interface ImgCluster {
-    //          center: number[],
-    //          bbox: BBox,
-    //          imgs: string[]
-    //       };
-    clusters = ot.collect();
-
-    return clusters;*/
 
     let sum = imgs[0].pos;
     let ct = imgs[0].pos;

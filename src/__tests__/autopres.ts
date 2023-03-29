@@ -1,4 +1,4 @@
-import { Pres, V2, bbox_sphere, V3, OT, Img } from '../autopres';
+import { Pres, V2, bbox_sphere, trip_finder, V3, OT, Img } from '../autopres';
 const fs = require('fs');
 
 function random_coords(): V2 {
@@ -38,16 +38,11 @@ function make_test_imgs(n: number, r: number, d: number): Img[] {
 
 it("test", () => {
     let imgs = make_test_imgs(200, 12, 0.1);
-    console.log(`testing insertion of ${imgs.length} images`);
-    let ot = new OT<Img>(bbox_sphere(new V3(0, 0, 0), 6378137), 1, 1);
-    for (let img of imgs) {
-        let [lat, lng] = img.pos;
-        ot.insert_coord(lat, lng, img);
-    }
-    console.log("done.");
-    for (let cluster of ot.collect()) {
-        let pos_arr = cluster.map(x => x.pos);
-        console.log(pos_arr);
-    }
-    fs.writeFile('test-out/box-corners.csv', ot.collect_box_corners_csv(), () => {});
+    let trips = trip_finder(imgs);
+    console.log(`number of images: ${imgs.length}`);
+    console.log(`number of trips: ${trips.length}`);
+    // for (let cluster of trips) {
+    //     let pos_arr = cluster.imgs.map(x => x);
+    //     console.log(pos_arr);
+    // }
 });
