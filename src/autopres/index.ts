@@ -361,6 +361,7 @@ export class OT<T> {
 class ImgClassifier {
     ot: OT<Img>;
     homes: { [_: number]: true };
+    img_to_node: { [_: string]: OTNode<Img> };
 
     constructor(imgs: Img[]) {
         this.ot = new OT<Img>(bbox_sphere(new V3(0, 0, 0), 6378137), 1, 1);
@@ -369,19 +370,59 @@ class ImgClassifier {
             this.ot.insert_coord(lat, lng, img);
         }
         this.homes = {};
+        this.img_to_node = {};
 
-        let home_threshold = 100;
+        if (imgs.length == 0) { return; }
+
+        let home_time_threshold = 3600 * 24 * 64;
         this.ot.visit(node => {
             let min_ts = 1/0;
             let max_ts = 0;
             for (let img of node.data as Img[]) {
+                this.img_to_node[img.id] = node;
                 if (img.timestamp > max_ts) max_ts = img.timestamp;
                 if (img.timestamp < min_ts) min_ts = img.timestamp;
             }
-            if (max_ts - min_ts > home_threshold) {
+            if (max_ts - min_ts > home_time_threshold) {
                 this.homes[node.id] = true;
             }
         });
+        // TODO: All nodes closer than `home_dist_threshold_km` to home-nodes
+        // also become home-nodes
+        let home_dist_threshold_km = 100;
+
+        imgs.sort((u, v) => v.timestamp - u.timestamp);
+
+        let pimg = imgs[0];
+        let cluster = [];
+        if (!this.is_ignored(pimg)) cluster.push(pimg);
+        let clusters = [cluster];
+        let len = imgs.length;
+        for (let i = 1; i < len; i++) {
+            let img = imgs[i];
+            if (this.is_split(pimg, img)) {
+                // Skip ahead to first non-ignored node
+                for (img = imgs[i]; img && !this.is_ignored(img); i++);
+                if (img) clusters.push(cluster = [img]);
+            } else if (!this.is_ignored(img)) {
+                cluster.push(img);
+            }
+        }
+    }
+
+    is_split(pimg: Img, nimg: Img): boolean {
+        let pnode = this.img_to_node[pimg.id];
+        let nnode = this.img_to_node[nimg.id];
+
+        // here we decide whether or not the transition from image `pimg` to
+        // `nimg` warrants a split in clustering.
+
+        return this.homes[nnode.id];
+    }
+
+    is_ignored(img: Img): boolean {
+        let node = this.img_to_node[img.id];
+        return this.homes[node.id];
     }
 }
 
