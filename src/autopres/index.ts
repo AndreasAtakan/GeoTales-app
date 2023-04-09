@@ -33,11 +33,11 @@ export class Pres {
      *   - `imgs`: Images to construct presentation from
      *   - `d`: Maximum radius of image cluster in kilometers
      */
-    constructor(imgs: ImageAsset[], d: number, pos_zero?: number[]) {
-        let l: Img[] = imgs.map(i => new Img(i, pos_zero));
-        l.sort((u, v) => u.timestamp - v.timestamp);
-        this.clusters = clusterize(l, d);
-        this.imgs = l;
+    constructor(imgs: Img[], d: number) {
+        //let l: Img[] = imgs.map(i => new Img(i, pos_zero));
+        imgs.sort((u, v) => u.timestamp - v.timestamp);
+        this.clusters = clusterize(imgs, d);
+        this.imgs = imgs;
     }
 
     next() {
@@ -485,7 +485,7 @@ class ImgClassifier {
             return {
                 center,
                 bbox,
-                imgs: imgs.map(img => img.uri),
+                imgs,
             }
         })
     }
@@ -534,7 +534,7 @@ function clusterize(imgs: Img[], d: number): ImgCluster[] {
 
     let sum = imgs[0].pos;
     let ct = imgs[0].pos;
-    let mareas = [imgs[0].id];
+    let mareas = [imgs[0]];
     let is = 0;
     let push_cluster = (i: number) => {
         // Get bounding box of entire cluster, essentially just computes min x/y
@@ -562,12 +562,12 @@ function clusterize(imgs: Img[], d: number): ImgCluster[] {
         // Check if the circle has grown too big
         if (distance(ct, pos) > d) {
             push_cluster(i);
-            mareas = [imgs[i].id];
+            mareas = [imgs[i]];
             ct = imgs[i].pos;
             sum = imgs[i].pos;
             is = i;
         } else {
-            mareas.push(imgs[i].id);
+            mareas.push(imgs[i]);
             sum[0] += pos[0];
             sum[1] += pos[1];
             // Re-center, `ct` is the rolling average of positions in `mareas`

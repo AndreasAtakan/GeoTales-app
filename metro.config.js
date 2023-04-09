@@ -24,5 +24,5 @@ module.exports = {
     ),
     //blockList: exclusionList([/..\/*/])
   },
-  watchFolders: [path.resolve('.'), path.resolve('..')],
+  watchFolders: [path.resolve('.') /*, path.resolve('..')*/],
 };

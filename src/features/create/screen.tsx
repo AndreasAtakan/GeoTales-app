@@ -12,7 +12,7 @@ import { CameraRoll, PhotoIdentifier } from "@react-native-camera-roll/camera-ro
 
 import uuid from "../../utils/uuid";
 
-import { Pres } from "../../autopres";
+import { Img, Pres, trip_finder } from "../../autopres";
 
 import { MainStack } from "../../components/MainStack";
 import { LoadingModal } from "./loading-modal";
@@ -39,12 +39,12 @@ async function hasAndroidPermission() {
 export const CreateScreen: FC< NativeStackScreenProps<StackNavigatorParams, "create"> > = ({ navigation }) => {
 	const { height, width } = useWindowDimensions();
 
-	const [ images, setImages ] = useState<any[] | null>(null);
-	const [ trips, setTrips ] = useState<any[] | null>(null);
+	const [ images, setImages ] = useState<Img[] | null>(null);
+	const [ trips, setTrips ] = useState<ImgCluster[] | null>(null);
 
 	const [ loading, setLoading ] = useState<boolean>(false);
 	const [ journeys, setJourneys ] = useState<boolean>(false);
-	const [ journey, setJourney ] = useState<any[] | null>(null);
+	const [ journey, setJourney ] = useState<Img[] | null>(null);
 	const [ select, setSelect ] = useState<boolean>(false);
 
 	const readImgs = async () => {
@@ -64,15 +64,15 @@ export const CreateScreen: FC< NativeStackScreenProps<StackNavigatorParams, "cre
 				include: [ "location", "imageSize" ]
 			});
 
-			let imgs = res.edges.filter((v: PhotoIdentifier) => !!v.node.location).map((v: PhotoIdentifier) => v.node);
+			let imgs = res.edges.filter((v: PhotoIdentifier) => !!v.node.location).map((v: PhotoIdentifier) => new Img(v.node));
 			imgs.sort((u, v) => u.timestamp - v.timestamp);
 			setImages(imgs);
 			console.log( imgs.length );
 
-			// TODO: Call algo that turns image list into suggested journeys
-			// imgs = algo(imgs);
-			let l = []; for(let i = 0; i < 5; i++) { l.push(imgs); }
-			setTrips(l);
+			// NOTE: Calls algo that turns image list into suggested journeys
+			setTrips(
+				trip_finder(imgs)
+			);
 
 			setLoading(false);
 			setJourneys(true);
@@ -83,13 +83,13 @@ export const CreateScreen: FC< NativeStackScreenProps<StackNavigatorParams, "cre
 		}
 	};
 
-	let createMap = async (imgs: any[]) => {
-		if(!imgs) { return; }
+	let createMap = async (imgs: Img[]) => {
+		if(imgs.length < 1) { return; }
 
 		setLoading(true);
 
 		try {
-			let pres = new Pres(imgs, 10, [8, 50]);
+			let pres = new Pres(imgs, 10);
 
 			const id = uuid();
 			await AsyncStorage.setItem( id, JSON.stringify(pres) );
@@ -141,7 +141,7 @@ export const CreateScreen: FC< NativeStackScreenProps<StackNavigatorParams, "cre
 				openJourneySelect={(index: number) => {
 					if(!trips) { return }
 					setJourneys(false);
-					setJourney( trips[index] );
+					setJourney( trips[index].imgs );
 				}}
 				openManualSelect={() => {
 					setJourneys(false);

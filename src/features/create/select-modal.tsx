@@ -12,6 +12,7 @@ import {
 import { CheckCircle } from "@tamagui/lucide-icons";
 
 //import getdate from "../../utils/getdate";
+import { Img } from "../../autopres";
 
 type SelectModalProps = {
 	navigation: NativeStackNavigationProp<
@@ -20,9 +21,9 @@ type SelectModalProps = {
 		undefined
 	>;
 	open: boolean;
-	images: any[] | null;
+	images: Img[] | null;
 	back: () => void;
-	create: (l: any[]) => void;
+	create: (l: Img[]) => void;
 };
 
 export const SelectModal: FC<SelectModalProps> = ({ navigation, open, images, back, create }) => {
@@ -109,7 +110,7 @@ export const SelectModal: FC<SelectModalProps> = ({ navigation, open, images, ba
 									height={d}
 									resizeMode="cover"
 									als="center"
-									src={item.image.uri}
+									src={item.uri}
 									//blurRadius={selected[index] ? 0 : 8}
 								/>
 							</Card.Background>

@@ -4,7 +4,7 @@ type BBox = [ number[], number[] ];
 interface ImgCluster {
     center: number[],
     bbox: BBox,
-    imgs: string[]
+    imgs: Img[]
 };
 
 type ImageAsset = PhotoIdentifier.node;

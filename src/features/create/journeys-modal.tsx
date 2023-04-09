@@ -19,7 +19,7 @@ type JourneysModalProps = {
 		undefined
 	>;
 	journeys: boolean;
-	trips: any[] | null;
+	trips: ImgCluster[] | null;
 	cancel: () => void;
 	openJourneySelect: (index: number) => void;
 	openManualSelect: () => void;
@@ -76,7 +76,8 @@ export const JourneysModal: FC<JourneysModalProps> = ({ navigation, journeys, tr
 					data={trips}
 					keyExtractor={(item, index) => index.toString()}
 					renderItem={({ item, index }) => {
-						let f = item[0], l = item[ item.length - 1 ],
+						let f = item.imgs[ item.imgs.length - 1 ],
+							l = item.imgs[0],
 							h = Math.min( w , 250);
 
 						return (
@@ -106,7 +107,7 @@ export const JourneysModal: FC<JourneysModalProps> = ({ navigation, journeys, tr
 										height={h}
 										resizeMode="cover"
 										als="center"
-										src={f.image.uri}
+										src={f.uri}
 										blurRadius={2}
 									/>
 								</Card.Background>

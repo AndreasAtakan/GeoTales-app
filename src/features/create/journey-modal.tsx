@@ -11,6 +11,7 @@ import {
 import { XCircle } from "@tamagui/lucide-icons";
 
 //import getdate from "../../utils/getdate";
+import { Img } from "../../autopres";
 
 type JourneyModalProps = {
 	navigation: NativeStackNavigationProp<
@@ -18,9 +19,9 @@ type JourneyModalProps = {
 		"create",
 		undefined
 	>;
-	journey: any[] | null;
+	journey: Img[] | null;
 	back: () => void;
-	create: (l: any[]) => void;
+	create: (l: Img[]) => void;
 };
 
 export const JourneyModal: FC<JourneyModalProps> = ({ navigation, journey, back, create }) => {
@@ -107,7 +108,7 @@ export const JourneyModal: FC<JourneyModalProps> = ({ navigation, journey, back,
 									height={d}
 									resizeMode="cover"
 									als="center"
-									src={item.image.uri}
+									src={item.uri}
 									blurRadius={selected[index] ? 0 : 8}
 								/>
 							</Card.Background>
